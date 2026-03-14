@@ -1,0 +1,78 @@
+/*
+ * FCB1010 (UnO2 v1.4) – Cubase OBS Setup
+ * Editor: UnO2 Control Center v1.5.0
+ * 
+ */
+
+PRESETS =
+{
+   /* (optional – leave empty for this simple setup) */
+}
+
+EFFECTS =
+{
+   /* (optional – leave empty for this simple setup) */
+   CUBASE_RECORD
+}
+
+TRIGGERS =
+{
+}
+
+/* Expression mappings (names referenced in INIT_FCB) */
+SWEEPS =
+{
+}
+
+
+/* -------------------- BANK LAYOUT -------------------- */
+/* bank N : Switch 1 | Switch 2 | ... | Switch 10 */
+BANKS =
+{
+   bank 1 : CUBASE_RECORD |  |  |  |  |  |  |  |  | 
+}
+
+
+/* -------------------- GLOBALS -------------------- */
+/* MIDI channel (10 = drums) */
+CHANNEL CUBASE_MIDI_CHANNEL = 10
+CHANNEL OBS_MIDI_CHANNEL = 11
+
+/* Expression pedal CCs (change if you prefer other CCs) */
+/* Expression A CC number (Volume) */
+// VAR $EXP_A_CC = 106
+/* Expression B CC number (Filter/FX) */
+// VAR $EXP_B_CC = 107      
+
+VAR $current_bank = 0
+VAR $on = 127
+VAR $off = 0
+
+
+/* -------------------- EXPRESSION SWEEPS -------------------- */
+/* Expression A -> Volume */
+// SWEEP volume = SendMidi MIDI_CHANNEL CtrlChange $EXP_A_CC 0-127 SlowRising
+/* Expression B -> Filter/FX */
+// SWEEP filter_fx = SendMidi MIDI_CHANNEL CtrlChange $EXP_B_CC 0-127 SlowRising
+
+
+/* -------------------- STARTUP INIT -------------------- */
+INIT_FCB =
+{
+   GotoBank bank 1
+}
+
+/* Optional per-bank init (track current bank if you need it for more advanced logic) */
+INIT_BANK bank 1 =
+{
+   $current_bank = 1
+}
+
+EFFECT_ON CUBASE_RECORD = {
+   
+   SendMidi CUBASE_MIDI_CHANNEL NoteOn 36 $on
+}
+
+EFFECT_OFF CUBASE_RECORD = {
+   SendMidi CUBASE_MIDI_CHANNEL NoteOff 36 $off
+}

@@ -37,35 +37,39 @@ var config = {
 	},
 	surface: {
 		width: 27,
-		height: 12.2,
-		pedalY: 0.5,
+		height: 16.6,
+		pedalY: 0.2,
 		pedalWidth: 10,
 		pedalHeight: 4.2,
 		leftPedalX: 1.2,
 		rightPedalX: 15.8,
 		footswitchSize: 2.6,
-		footswitchRowTopY: 5.3,
-		footswitchRowBottomY: 8.8,
+		footswitchRowTopY: 6.3,
+		footswitchRowBottomY: 12.0,
 		footswitchXStart: 1.4,
 		footswitchXStep: 5.0,
-		footswitchLedSize: 0.55
+		footswitchLedSize: 0.55,
+		footswitchLabelWidthPadding: 1.0,
+		footswitchLabelHeight: 1.3,
+		footswitchLabelYOffset: 0.1
 	},
 	midi: {
 		channelZeroBased: 9,
 		footswitchNotes: [36, 38, 40, 41, 43, 45, 47, 48, 50, 52]
 	},
 	footswitch: {
+		maxRoleLabelLength: 6,
 		roles: [
-			'Record',
+			'Rec',
 			'Play',
 			'Stop',
 			'Cycle',
 			'Click',
-			'Rewind',
-			'Forward',
+			'RW',
+			'FF',
 			'Undo',
-			'Reserved 1',
-			'Reserved 2'
+			'Res1',
+			'Res2'
 		]
 	},
 	state: {
@@ -162,6 +166,33 @@ function makeFootswitchPositions(surfaceConfig) {
 }
 
 /**
+ * @param {string} roleName
+ * @param {number} maxLength
+ * @returns {string}
+ */
+function normalizeRoleLabel(roleName, maxLength) {
+	var normalized = typeof roleName === 'string' ? roleName.trim() : ''
+	if (!normalized) return 'N/A'
+	if (!maxLength || maxLength < 1) return normalized
+	if (normalized.length <= maxLength) return normalized
+	if (maxLength === 1) return normalized.slice(0, 1)
+	return normalized.slice(0, maxLength - 1) + '~'
+}
+
+/**
+ * @param {*} localConfig
+ * @param {number} roleIndex
+ * @returns {string}
+ */
+function makeFootswitchLabel(localConfig, roleIndex) {
+	var roleList = localConfig.footswitch && localConfig.footswitch.roles
+	var role = roleList && roleIndex < roleList.length ? roleList[roleIndex] : ''
+	var maxLength = localConfig.footswitch && localConfig.footswitch.maxRoleLabelLength
+	var safeRole = normalizeRoleLabel(role, maxLength)
+	return 'FS' + String(roleIndex + 1) + '\n' + safeRole
+}
+
+/**
  * @param {*} surface
  * @param {*} page
  * @param {*} midiInput
@@ -204,8 +235,12 @@ function createSurface(surface, page, midiInput, localConfig) {
 
 	for (var labelIndex = 0; labelIndex < footswitchPositions.length; ++labelIndex) {
 		var labelPos = footswitchPositions[labelIndex]
-		var fsLabel = surface.makeLabelField(labelPos.x, labelPos.y + surfaceConfig.footswitchSize + 0.1, surfaceConfig.footswitchSize, 1)
-		page.setLabelFieldText(fsLabel, 'FS' + String(labelIndex + 1) + ' ' + localConfig.footswitch.roles[labelIndex])
+		var labelWidth = surfaceConfig.footswitchSize + surfaceConfig.footswitchLabelWidthPadding
+		var labelHeight = surfaceConfig.footswitchLabelHeight
+		var labelX = labelPos.x - (labelWidth - surfaceConfig.footswitchSize) / 2
+		var fsLabelY = labelPos.y + surfaceConfig.footswitchSize + surfaceConfig.footswitchLabelYOffset
+		var fsLabel = surface.makeLabelField(labelX, fsLabelY, labelWidth, labelHeight)
+		page.setLabelFieldText(fsLabel, makeFootswitchLabel(localConfig, labelIndex))
 	}
 
 	return {

@@ -1,7 +1,21 @@
 /*
  * FCB1010 (UnO2 v1.4) – Cubase OBS Setup
  * Editor: UnO2 Control Center v1.5.0
- * 
+ *
+ * Current purpose:
+ * - Footswitch 1 controls Cubase recording by sending Note 36 on MIDI channel 10.
+ * - Footswitch 2 starts playback by sending Note 38 on MIDI channel 10.
+ * - Footswitch 3 stops playback by sending Note 40 on MIDI channel 10.
+ * - Press sends Note On with value 127.
+ * - Release sends Note Off with value 0.
+ *
+ * Design goal:
+ * - Keep the setup simple and musician-friendly.
+ * - One dedicated Cubase switch first, then expand later.
+ *
+ * Suggested future Cubase note layout on channel 10:
+ * FS1=36, FS2=38, FS3=40, FS4=41, FS5=43,
+ * FS6=45, FS7=47, FS8=48, FS9=50, FS10=52.
  */
 
 PRESETS =
@@ -11,8 +25,10 @@ PRESETS =
 
 EFFECTS =
 {
-   /* (optional – leave empty for this simple setup) */
+   /* Current active Cubase effect */
    CUBASE_RECORD
+   CUBASE_PLAY
+   CUBASE_STOP
 }
 
 TRIGGERS =
@@ -29,7 +45,7 @@ SWEEPS =
 /* bank N : Switch 1 | Switch 2 | ... | Switch 10 */
 BANKS =
 {
-   bank 1 : CUBASE_RECORD |  |  |  |  |  |  |  |  | 
+   bank 1 : CUBASE_RECORD | CUBASE_PLAY | CUBASE_STOP |  |  |  |  |  |  | 
 }
 
 
@@ -48,6 +64,19 @@ VAR $current_bank = 0
 VAR $on = 127
 VAR $off = 0
 
+/* Documentation-only note map for future expansion
+ * FS1  -> Note 36  -> Record
+ * FS2  -> Note 38  -> Play
+ * FS3  -> Note 40  -> Stop
+ * FS4  -> Note 41  -> Cycle
+ * FS5  -> Note 43  -> Click
+ * FS6  -> Note 45  -> Previous Marker
+ * FS7  -> Note 47  -> Next Marker
+ * FS8  -> Note 48  -> Undo
+ * FS9  -> Note 50  -> Monitor
+ * FS10 -> Note 52  -> User Function
+ */
+
 
 /* -------------------- EXPRESSION SWEEPS -------------------- */
 /* Expression A -> Volume */
@@ -59,6 +88,7 @@ VAR $off = 0
 /* -------------------- STARTUP INIT -------------------- */
 INIT_FCB =
 {
+   /* Keep the Cubase workflow on bank 1 for a predictable startup state */
    GotoBank bank 1
 }
 
@@ -69,10 +99,29 @@ INIT_BANK bank 1 =
 }
 
 EFFECT_ON CUBASE_RECORD = {
-   
+   /* Footswitch press -> start Cubase recording */
    SendMidi CUBASE_MIDI_CHANNEL NoteOn 36 $on
 }
 
 EFFECT_OFF CUBASE_RECORD = {
+   /* Footswitch release -> stop Cubase recording in the MIDI Remote script */
    SendMidi CUBASE_MIDI_CHANNEL NoteOff 36 $off
+}
+
+EFFECT_ON CUBASE_PLAY = {
+   /* Footswitch press -> start Cubase playback */
+   SendMidi CUBASE_MIDI_CHANNEL NoteOn 38 $on
+}
+
+EFFECT_OFF CUBASE_PLAY = {
+   SendMidi CUBASE_MIDI_CHANNEL NoteOff 38 $off
+}
+
+EFFECT_ON CUBASE_STOP = {
+   /* Footswitch press -> stop Cubase playback */
+   SendMidi CUBASE_MIDI_CHANNEL NoteOn 40 $on
+}
+
+EFFECT_OFF CUBASE_STOP = {
+   SendMidi CUBASE_MIDI_CHANNEL NoteOff 40 $off
 }

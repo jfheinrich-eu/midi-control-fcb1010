@@ -6,12 +6,17 @@
  * - Footswitch 1 controls Cubase recording by sending Note 36 on MIDI channel 10.
  * - Footswitch 2 starts playback by sending Note 38 on MIDI channel 10.
  * - Footswitch 3 stops playback by sending Note 40 on MIDI channel 10.
+ * - Footswitch 4 controls Cycle by sending Note 41 on MIDI channel 10.
+ * - Footswitch 5 controls Click by sending Note 43 on MIDI channel 10.
+ * - Footswitch 6 controls Rewind by sending Note 45 on MIDI channel 10.
+ * - Footswitch 7 controls Forward by sending Note 47 on MIDI channel 10.
+ * - Footswitch 8 controls Undo by sending Note 48 on MIDI channel 10.
  * - Press sends Note On with value 127.
  * - Release sends Note Off with value 0.
  *
  * Design goal:
  * - Keep the setup simple and musician-friendly.
- * - One dedicated Cubase switch first, then expand later.
+ * - Keep one dedicated Cubase bank with clear transport navigation.
  *
  * Suggested future Cubase note layout on channel 10:
  * FS1=36, FS2=38, FS3=40, FS4=41, FS5=43,
@@ -29,6 +34,11 @@ EFFECTS =
    CUBASE_RECORD
    CUBASE_PLAY
    CUBASE_STOP
+   CUBASE_CYCLE
+   CUBASE_CLICK
+   CUBASE_REWIND
+   CUBASE_FORWARD
+   CUBASE_UNDO
 }
 
 TRIGGERS =
@@ -45,7 +55,7 @@ SWEEPS =
 /* bank N : Switch 1 | Switch 2 | ... | Switch 10 */
 BANKS =
 {
-   bank 1 : CUBASE_RECORD | CUBASE_PLAY | CUBASE_STOP |  |  |  |  |  |  | 
+   bank 1 : CUBASE_RECORD | CUBASE_PLAY | CUBASE_STOP | CUBASE_CYCLE | CUBASE_CLICK | CUBASE_REWIND | CUBASE_FORWARD | CUBASE_UNDO |  | 
 }
 
 
@@ -124,4 +134,44 @@ EFFECT_ON CUBASE_STOP = {
 
 EFFECT_OFF CUBASE_STOP = {
    SendMidi CUBASE_MIDI_CHANNEL NoteOff 40 $off
+}
+
+EFFECT_ON CUBASE_CYCLE = {
+   SendMidi CUBASE_MIDI_CHANNEL NoteOn 41 $on
+}
+
+EFFECT_OFF CUBASE_CYCLE = {
+   SendMidi CUBASE_MIDI_CHANNEL NoteOff 41 $off
+}
+
+EFFECT_ON CUBASE_CLICK = {
+   SendMidi CUBASE_MIDI_CHANNEL NoteOn 43 $on
+}
+
+EFFECT_OFF CUBASE_CLICK = {
+   SendMidi CUBASE_MIDI_CHANNEL NoteOff 43 $off
+}
+
+EFFECT_ON CUBASE_REWIND = {
+   SendMidi CUBASE_MIDI_CHANNEL NoteOn 45 $on
+}
+
+EFFECT_OFF CUBASE_REWIND = {
+   SendMidi CUBASE_MIDI_CHANNEL NoteOff 45 $off
+}
+
+EFFECT_ON CUBASE_FORWARD = {
+   SendMidi CUBASE_MIDI_CHANNEL NoteOn 47 $on
+}
+
+EFFECT_OFF CUBASE_FORWARD = {
+   SendMidi CUBASE_MIDI_CHANNEL NoteOff 47 $off
+}
+
+EFFECT_ON CUBASE_UNDO = {
+   SendMidi CUBASE_MIDI_CHANNEL NoteOn 48 $on
+}
+
+EFFECT_OFF CUBASE_UNDO = {
+   SendMidi CUBASE_MIDI_CHANNEL NoteOff 48 $off
 }

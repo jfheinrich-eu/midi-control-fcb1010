@@ -67,11 +67,24 @@ Possible next steps to evolve this script into a complete FCB1010 profile:
 ### Basic setup
 1. Place the script in the Cubase MIDI Remote local scripts folder.
 2. Reload scripts in Cubase (MIDI Remote -> Scripting Tools -> Reload Scripts).
-3. Add/select the device in MIDI Remote Manager.
+3. Add/select one device variant in MIDI Remote Manager.
 4. Ensure your FCB1010 sends the configured notes on MIDI channel 10:
 	- Footswitch 1 -> Note 36
 	- Footswitch 2 -> Note 38
 	- Footswitch 3 -> Note 40
+
+### Device variants (no editor changes required)
+This package now provides two selectable Cubase devices so users can choose the layout without editing files:
+
+| Device Name in Cubase | Layout Goal | Source |
+| --- | --- | --- |
+| BehringerFCB1010UnO2_Wide | Maximum label readability and spacing | Registered by Behringer_BehringerFCB1010UnO2.js |
+| BehringerFCB1010UnO2_Compact | Denser layout with reduced horizontal spacing | Registered by Behringer_BehringerFCB1010UnO2.js |
+
+Recommended distribution workflow:
+1. Ship the single script file Behringer_BehringerFCB1010UnO2.js.
+2. Ask users to pick the preferred device variant directly in Cubase.
+3. No script editing is required for normal use.
 
 ## MIDI Configuration
 This script currently uses footswitches 1 to 8.

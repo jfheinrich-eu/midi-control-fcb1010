@@ -88,13 +88,21 @@ var config = {
 			'RW',
 			'FF',
 			'Undo',
-			'Res1',
+			'Tap',
 			'Res2'
 		]
+	},
+	tapTempo: {
+		minTapIntervalMs: 250,
+		maxTapIntervalMs: 2000,
+		defaultBpm: 120,
+		smoothing: 0.35
 	},
 	state: {
 		wasRecordingKey: 'wasRecording',
 		lastStopPulseMsKey: 'lastStopPulseMs',
+		lastTapMsKey: 'lastTapMs',
+		tapTempoBpmKey: 'tapTempoBpm',
 		stopPulseDebounceMs: 120
 	}
 }
@@ -257,6 +265,7 @@ function createSurface(surface, page, midiInput, localConfig) {
 	var footswitchPositions = makeFootswitchPositions(surfaceConfig)
 	var footswitchButtons = []
 	var footswitchLamps = []
+	var footswitchInnerLabels = []
 
 	for (var footswitchIndex = 0; footswitchIndex < footswitchPositions.length; ++footswitchIndex) {
 		var pos = footswitchPositions[footswitchIndex]
@@ -272,6 +281,15 @@ function createSurface(surface, page, midiInput, localConfig) {
 		button.mSurfaceValue.mMidiBinding
 			.setInputPort(midiInput)
 			.bindToNote(midiConfig.channelZeroBased, midiConfig.footswitchNotes[footswitchIndex])
+
+		if (footswitchIndex === 8) {
+			var innerLabel = surface.makeLabelField(buttonX + 0.55, pos.y + 0.9, surfaceConfig.footswitchWidth - 1.1, 0.7)
+			innerLabel.relateTo(button)
+			page.setLabelFieldText(innerLabel, 'TAP')
+			footswitchInnerLabels.push(innerLabel)
+		} else {
+			footswitchInnerLabels.push(null)
+		}
 
 		footswitchButtons.push(button)
 		footswitchLamps.push(lamp)
@@ -342,6 +360,15 @@ function createBindings(page, ui, localStateApi, localConfig) {
 	var stopStatusBinding = page.makeValueBinding(ui.stopStatus, page.mHostAccess.mTransport.mValue.mStop).setTypeDefault()
 	var cycleStatusBinding = page.makeValueBinding(ui.cycleStatus, page.mHostAccess.mTransport.mValue.mCycleActive).setTypeDefault()
 	var metronomeStatusBinding = page.makeValueBinding(ui.metronomeStatus, page.mHostAccess.mTransport.mValue.mMetronomeActive).setTypeDefault()
+	var activeMappingRef = null
+
+	page.mOnActivate = function () {
+		activeMappingRef = arguments[1]
+	}
+
+	page.mOnDeactivate = function () {
+		activeMappingRef = null
+	}
 
 	playStatusBinding.mOnValueChange = function () {
 		var activeDevice = arguments[0]
@@ -428,6 +455,29 @@ function createBindings(page, ui, localStateApi, localConfig) {
 		var currValue = Number(arguments[1])
 		if (!activeDevice || isNaN(currValue)) return
 		ui.fsLamps[7].mSurfaceValue.setProcessValue(activeDevice, currValue >= 0.5 ? 1 : 0)
+	}
+
+	ui.fsButtons[8].mSurfaceValue.mOnProcessValueChange = function () {
+		var activeDevice = arguments[0]
+		var currValue = Number(arguments[1])
+		if (!activeDevice || isNaN(currValue)) return
+		ui.fsLamps[8].mSurfaceValue.setProcessValue(activeDevice, currValue >= 0.5 ? 1 : 0)
+		if (currValue < 0.5 || !activeMappingRef) return
+
+		var nowMs = Date.now()
+		var tapConfig = localConfig.tapTempo
+		var lastTapMs = localStateApi.getIntegerState(activeDevice, localConfig.state.lastTapMsKey, 0)
+		var intervalMs = nowMs - lastTapMs
+
+		if (intervalMs >= tapConfig.minTapIntervalMs && intervalMs <= tapConfig.maxTapIntervalMs) {
+			var measuredBpm = 60000 / intervalMs
+			var previousBpm = localStateApi.getIntegerState(activeDevice, localConfig.state.tapTempoBpmKey, tapConfig.defaultBpm)
+			var smoothedBpm = Math.round((previousBpm * tapConfig.smoothing) + (measuredBpm * (1 - tapConfig.smoothing)))
+			page.mHostAccess.mTransport.mTimeDisplay.setTempoBPM(activeMappingRef, smoothedBpm)
+			localStateApi.setIntegerState(activeDevice, localConfig.state.tapTempoBpmKey, smoothedBpm)
+		}
+
+		localStateApi.setIntegerState(activeDevice, localConfig.state.lastTapMsKey, nowMs)
 	}
 }
 

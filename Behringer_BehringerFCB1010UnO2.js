@@ -38,20 +38,34 @@ var config = {
 	surface: {
 		width: 27,
 		height: 16.6,
+		layoutPreset: 'wide',
 		pedalY: 0.2,
 		pedalWidth: 10,
 		pedalHeight: 4.2,
 		leftPedalX: 1.2,
 		rightPedalX: 15.8,
-		footswitchSize: 2.6,
 		footswitchRowTopY: 6.3,
 		footswitchRowBottomY: 12.0,
 		footswitchXStart: 1.4,
-		footswitchXStep: 5.0,
 		footswitchLedSize: 0.55,
-		footswitchLabelWidthPadding: 1.0,
-		footswitchLabelHeight: 1.3,
-		footswitchLabelYOffset: 0.1
+		layouts: {
+			wide: {
+				footswitchWidth: 3.6,
+				footswitchHeight: 2.6,
+				footswitchXStep: 5.0,
+				footswitchLabelWidth: 4.8,
+				footswitchLabelHeight: 0.9,
+				footswitchLabelYOffset: 0.1
+			},
+			compact: {
+				footswitchWidth: 3.2,
+				footswitchHeight: 2.6,
+				footswitchXStep: 4.7,
+				footswitchLabelWidth: 4.2,
+				footswitchLabelHeight: 0.9,
+				footswitchLabelYOffset: 0.1
+			}
+		}
 	},
 	midi: {
 		channelZeroBased: 9,
@@ -166,6 +180,34 @@ function makeFootswitchPositions(surfaceConfig) {
 }
 
 /**
+ * @param {*} surfaceConfig
+ * @returns {*}
+ */
+function resolveSurfaceConfig(surfaceConfig) {
+	var layoutMap = surfaceConfig.layouts || {}
+	var presetName = surfaceConfig.layoutPreset
+	var fallbackPresetName = 'wide'
+	var preset = layoutMap[presetName] || layoutMap[fallbackPresetName] || {}
+	var resolved = {}
+	var key
+
+	for (key in surfaceConfig) {
+		if (Object.prototype.hasOwnProperty.call(surfaceConfig, key) && key !== 'layouts') {
+			resolved[key] = surfaceConfig[key]
+		}
+	}
+
+	for (key in preset) {
+		if (Object.prototype.hasOwnProperty.call(preset, key)) {
+			resolved[key] = preset[key]
+		}
+	}
+
+	resolved.layoutPreset = layoutMap[presetName] ? presetName : fallbackPresetName
+	return resolved
+}
+
+/**
  * @param {string} roleName
  * @param {number} maxLength
  * @returns {string}
@@ -189,7 +231,7 @@ function makeFootswitchLabel(localConfig, roleIndex) {
 	var role = roleList && roleIndex < roleList.length ? roleList[roleIndex] : ''
 	var maxLength = localConfig.footswitch && localConfig.footswitch.maxRoleLabelLength
 	var safeRole = normalizeRoleLabel(role, maxLength)
-	return 'FS' + String(roleIndex + 1) + '\n' + safeRole
+	return 'FS' + String(roleIndex + 1) + ' ' + safeRole
 }
 
 /**
@@ -199,7 +241,7 @@ function makeFootswitchLabel(localConfig, roleIndex) {
  * @param {*} localConfig
  */
 function createSurface(surface, page, midiInput, localConfig) {
-	var surfaceConfig = localConfig.surface
+	var surfaceConfig = resolveSurfaceConfig(localConfig.surface)
 	var midiConfig = localConfig.midi
 
 	surface.makeBlindPanel(0, 0, surfaceConfig.width, surfaceConfig.height)
@@ -212,9 +254,10 @@ function createSurface(surface, page, midiInput, localConfig) {
 
 	for (var footswitchIndex = 0; footswitchIndex < footswitchPositions.length; ++footswitchIndex) {
 		var pos = footswitchPositions[footswitchIndex]
-		var button = surface.makeButton(pos.x, pos.y, surfaceConfig.footswitchSize, surfaceConfig.footswitchSize)
+		var buttonX = pos.x - (surfaceConfig.footswitchWidth - surfaceConfig.footswitchHeight) / 2
+		var button = surface.makeButton(buttonX, pos.y, surfaceConfig.footswitchWidth, surfaceConfig.footswitchHeight)
 		var lamp = surface.makeLamp(
-			pos.x + (surfaceConfig.footswitchSize - surfaceConfig.footswitchLedSize) / 2,
+			buttonX + (surfaceConfig.footswitchWidth - surfaceConfig.footswitchLedSize) / 2,
 			pos.y - 0.5,
 			surfaceConfig.footswitchLedSize,
 			surfaceConfig.footswitchLedSize
@@ -235,10 +278,10 @@ function createSurface(surface, page, midiInput, localConfig) {
 
 	for (var labelIndex = 0; labelIndex < footswitchPositions.length; ++labelIndex) {
 		var labelPos = footswitchPositions[labelIndex]
-		var labelWidth = surfaceConfig.footswitchSize + surfaceConfig.footswitchLabelWidthPadding
+		var labelWidth = surfaceConfig.footswitchLabelWidth
 		var labelHeight = surfaceConfig.footswitchLabelHeight
-		var labelX = labelPos.x - (labelWidth - surfaceConfig.footswitchSize) / 2
-		var fsLabelY = labelPos.y + surfaceConfig.footswitchSize + surfaceConfig.footswitchLabelYOffset
+		var labelX = labelPos.x - (labelWidth - surfaceConfig.footswitchHeight) / 2
+		var fsLabelY = labelPos.y + surfaceConfig.footswitchHeight + surfaceConfig.footswitchLabelYOffset
 		var fsLabel = surface.makeLabelField(labelX, fsLabelY, labelWidth, labelHeight)
 		page.setLabelFieldText(fsLabel, makeFootswitchLabel(localConfig, labelIndex))
 	}

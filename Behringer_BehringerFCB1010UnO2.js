@@ -19,6 +19,12 @@
 
 var midiremote_api = require('midiremote_api_v1')
 
+// ─────────────────────────────────────────────────────────────────────────────
+// LAYOUT SELECTION  –  change to 'compact' for a narrower button layout
+//                      ('wide' = default, larger buttons)
+// ─────────────────────────────────────────────────────────────────────────────
+var LAYOUT = 'wide'
+
 var config = {
 	driver: {
 		vendorName: 'Behringer',
@@ -425,27 +431,52 @@ function createBindings(page, ui, localStateApi, localConfig) {
 	}
 }
 
-// 1) Driver setup
-var deviceDriver = midiremote_api.makeDeviceDriver(
-	config.driver.vendorName,
-	config.driver.deviceName,
-	config.driver.createdBy
-)
-
-var midiInput = deviceDriver.mPorts.makeMidiInput()
-var midiOutput = deviceDriver.mPorts.makeMidiOutput()
-
-for (var i = 0; i < config.detection.portNames.length; ++i) {
-	var portName = config.detection.portNames[i]
-	deviceDriver.makeDetectionUnit().detectPortPair(midiInput, midiOutput)
-		.expectInputNameEquals(portName)
-		.expectOutputNameEquals(portName)
+/**
+ * @param {*} localConfig
+ * @returns {*}
+ */
+function cloneConfig(localConfig) {
+	return JSON.parse(JSON.stringify(localConfig))
 }
 
-// 2) Surface + mapping wiring
-var surface = deviceDriver.mSurface
-var page = deviceDriver.mMapping.makePage(config.page.recording)
-var ui = createSurface(surface, page, midiInput, config)
+/**
+ * @param {*} baseConfig
+ * @param {string} deviceName
+ * @param {string} layoutPreset
+ * @returns {*}
+ */
+function makeVariantConfig(baseConfig, deviceName, layoutPreset) {
+	var variantConfig = cloneConfig(baseConfig)
+	variantConfig.driver.deviceName = deviceName
+	variantConfig.surface.layoutPreset = layoutPreset
+	return variantConfig
+}
 
-// 3) Host bindings
-createBindings(page, ui, stateApi, config)
+/**
+ * @param {*} localConfig
+ */
+function registerDevice(localConfig) {
+	var deviceDriver = midiremote_api.makeDeviceDriver(
+		localConfig.driver.vendorName,
+		localConfig.driver.deviceName,
+		localConfig.driver.createdBy
+	)
+
+	var midiInput = deviceDriver.mPorts.makeMidiInput()
+	var midiOutput = deviceDriver.mPorts.makeMidiOutput()
+
+	for (var i = 0; i < localConfig.detection.portNames.length; ++i) {
+		var portName = localConfig.detection.portNames[i]
+		deviceDriver.makeDetectionUnit().detectPortPair(midiInput, midiOutput)
+			.expectInputNameEquals(portName)
+			.expectOutputNameEquals(portName)
+	}
+
+	var surface = deviceDriver.mSurface
+	var page = deviceDriver.mMapping.makePage(localConfig.page.recording)
+	var ui = createSurface(surface, page, midiInput, localConfig)
+	createBindings(page, ui, stateApi, localConfig)
+}
+
+// Register the selected layout variant (change LAYOUT at the top of this file to switch).
+registerDevice(makeVariantConfig(config, config.driver.deviceName, LAYOUT))

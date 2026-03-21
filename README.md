@@ -16,10 +16,11 @@ Implemented behavior:
 - Footswitch 2 release: additionally trigger one Stop pulse
 - Footswitch 3 press: Stop Play + force Record Off + auto-release button state
 - Footswitch 4 toggle: Cycle On/Off
-- Footswitch 5 toggle: Metronome (Click) On/Off
+- Footswitch 5 press: Tap Tempo
 - Footswitch 6 press: Rewind (momentary)
 - Footswitch 7 press: Forward (momentary)
 - Footswitch 8 press: Undo
+- Footswitch 9 toggle: Metronome (Click) On/Off
 
 Implemented surface design:
 - The Cubase surface is visually arranged like a real FCB1010.
@@ -87,7 +88,7 @@ Recommended distribution workflow:
 3. No script editing is required for normal use.
 
 ## MIDI Configuration
-This script currently uses footswitches 1 to 8.
+This script currently uses footswitches 1 to 9.
 
 Required triggers for the current script:
 
@@ -97,18 +98,19 @@ Required triggers for the current script:
 | 2 | Play | Note | 10 | 38 | 127 | 0 | Momentary |
 | 3 | Stop | Note | 10 | 40 | 127 | 0 | Momentary |
 | 4 | Cycle | Note | 10 | 41 | 127 | 0 | Toggle |
-| 5 | Click | Note | 10 | 43 | 127 | 0 | Toggle |
+| 5 | Tap Tempo | Note | 10 | 43 | 127 | 0 | Momentary |
 | 6 | Rewind | Note | 10 | 45 | 127 | 0 | Momentary |
 | 7 | Forward | Note | 10 | 47 | 127 | 0 | Momentary |
 | 8 | Undo | Note | 10 | 48 | 127 | 0 | Momentary |
+| 9 | Click | Note | 10 | 50 | 127 | 0 | Toggle |
 
 ### What to configure in UnO2 Control Center
 In the UnO2 Control Center editor, create or edit the footswitch assignments so that the first three switches send these note events:
 
 1. Select the preset or mode you want to use for Cubase control.
-2. Configure FS1..FS8 to notes 36, 38, 40, 41, 43, 45, 47, 48 on MIDI channel 10.
-3. Set FS1, FS2, FS3, FS6, FS7, FS8 to momentary.
-4. Set FS4 and FS5 to toggle (or momentary if you prefer host-side toggling).
+2. Configure FS1..FS9 to notes 36, 38, 40, 41, 43, 45, 47, 48, 50 on MIDI channel 10.
+3. Set FS1, FS2, FS3, FS5, FS6, FS7, FS8 to momentary.
+4. Set FS4 and FS9 to toggle (or momentary if you prefer host-side toggling).
 5. Make sure press sends Note On with velocity/value 127.
 6. Make sure release sends Note Off, or an equivalent zero-value release event.
 
@@ -128,8 +130,8 @@ If the UnO2 switch is configured as toggle/latching instead of momentary, the wo
 ### Recommended Cubase-dedicated UnO2 setup
 If you want one bank dedicated to Cubase, the simplest and most robust approach is:
 - Reserve one preset/bank for Cubase transport control.
-- Assign footswitches 1 to 8 exactly as described above.
-- Footswitches 9 and 10 can remain reserved/user-defined for now.
+- Assign footswitches 1 to 9 exactly as described above.
+- Footswitch 10 can remain reserved/user-defined for now.
 
 ### Suggested note map for a future full 10-switch setup
 The workspace already contains a related UnO2 mapping using this note layout on MIDI channel 10:
@@ -158,16 +160,16 @@ The following layout is meant to stay easy to understand for a regular guitarist
 | 2 | Play | 10 | 38 | Play |
 | 3 | Stop | 10 | 40 | Stop |
 | 4 | Cycle On / Off | 10 | 41 | Cycle |
-| 5 | Metronome On / Off | 10 | 43 | Click |
+| 5 | Tap Tempo | 10 | 43 | Tap |
 | 6 | Rewind (momentary) | 10 | 45 | Rewind |
 | 7 | Forward (momentary) | 10 | 47 | Forward |
 | 8 | Undo | 10 | 48 | Undo |
-| 9 | Monitor Selected Track | 10 | 50 | Monitor |
+| 9 | Metronome On / Off | 10 | 50 | Click |
 | 10 | Talkback / User Function | 10 | 52 | User |
 
 Notes:
-- Footswitches 1 to 8 are implemented in the current script.
-- Footswitches 9 and 10 are still reserved extension points.
+- Footswitches 1 to 9 are implemented in the current script.
+- Footswitch 10 is still a reserved extension point.
 - The labels are intentionally simple and musician-friendly.
 
 ### Expression pedals

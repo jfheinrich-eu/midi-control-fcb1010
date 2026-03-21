@@ -7,11 +7,11 @@
  * - Footswitch 2 starts playback by sending Note 38 on MIDI channel 10.
  * - Footswitch 3 stops playback by sending Note 40 on MIDI channel 10.
  * - Footswitch 4 controls Cycle by sending Note 41 on MIDI channel 10.
- * - Footswitch 5 controls Click by sending Note 43 on MIDI channel 10.
+ * - Footswitch 5 controls Tap Tempo by sending Note 43 on MIDI channel 10.
  * - Footswitch 6 controls Rewind by sending Note 45 on MIDI channel 10.
  * - Footswitch 7 controls Forward by sending Note 47 on MIDI channel 10.
  * - Footswitch 8 controls Undo by sending Note 48 on MIDI channel 10.
- * - Footswitch 9 controls Tap Tempo by sending Note 50 on MIDI channel 10.
+ * - Footswitch 9 controls Click by sending Note 50 on MIDI channel 10.
  * - Press sends Note On with value 127.
  * - Release sends Note Off with value 0.
  *
@@ -57,7 +57,7 @@ SWEEPS =
 /* bank N : Switch 1 | Switch 2 | ... | Switch 10 */
 BANKS =
 {
-   bank 1 : CUBASE_RECORD | CUBASE_PLAY | CUBASE_STOP | CUBASE_CYCLE | CUBASE_CLICK | CUBASE_REWIND | CUBASE_FORWARD | CUBASE_UNDO | CUBASE_TAP | 
+   bank 1 : CUBASE_RECORD | CUBASE_PLAY | CUBASE_STOP | CUBASE_CYCLE | CUBASE_TAP | CUBASE_REWIND | CUBASE_FORWARD | CUBASE_UNDO | CUBASE_CLICK | 
 }
 
 
@@ -81,11 +81,11 @@ VAR $off = 0
  * FS2  -> Note 38  -> Play
  * FS3  -> Note 40  -> Stop
  * FS4  -> Note 41  -> Cycle
- * FS5  -> Note 43  -> Click
+ * FS5  -> Note 43  -> Tap Tempo
  * FS6  -> Note 45  -> Previous Marker
  * FS7  -> Note 47  -> Next Marker
  * FS8  -> Note 48  -> Undo
- * FS9  -> Note 50  -> Tap Tempo
+ * FS9  -> Note 50  -> Click
  * FS10 -> Note 52  -> User Function
  */
 

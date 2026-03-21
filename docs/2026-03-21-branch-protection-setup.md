@@ -42,10 +42,16 @@ unintended release is created before the PR is reviewed and merged.
 
 ### `.github/workflows/pr-bot-review.yml`
 
-Triggers on `pull_request: [opened, ready_for_review]`.  
+Triggers on `pull_request: [opened, ready_for_review, synchronize, reopened]`.  
 When the pull request is authored by `@jfheinrich` and is not a draft, the
 workflow calls the GitHub API using the `BOT_REVIEW_TOKEN` secret to submit
 an **APPROVE** review as `jfheinrich-bot`.
+
+If `jfheinrich-bot` has already approved the PR, the step skips the API call
+to avoid duplicate reviews on every `synchronize` event. When "Dismiss stale
+reviews when new commits are pushed" is enabled in branch protection, the bot
+will automatically re-approve on each new commit because the workflow now
+triggers on `synchronize`.
 
 This satisfies the "at least one codeowner must approve" branch-protection
 requirement for owner-authored pull requests, because `jfheinrich-bot` is now
@@ -78,7 +84,7 @@ settings must be applied to the `main` branch through
 |---|---|
 | Require a pull request before merging | ✅ enabled |
 | Require approvals | 1 |
-| Dismiss stale reviews when new commits are pushed | recommended ✅ |
+| Dismiss stale reviews when new commits are pushed | ✅ enabled |
 | Require review from Code Owners | ✅ enabled |
 | Require conversation resolution before merging | ✅ enabled |
 | Do not allow bypassing the above settings | ✅ recommended |
@@ -100,7 +106,8 @@ settings must be applied to the `main` branch through
   `@jfheinrich-bot`, `@jfheinrich-eu/maintainers`).
 - Verified `label-sync.yml` push trigger now targets `main` (was `master`).
 - Verified all three new workflow files were created with correct triggers and
-  permissions.
+  permissions. `pr-bot-review.yml` now triggers on `[opened, ready_for_review,
+  synchronize, reopened]` and deduplicates approvals on `synchronize`.
 - Verified `skip-release` label already exists in `.github/labels.yml`
   (no label definition change required).
 - Confirmed `BOT_REVIEW_TOKEN` secret reference is used exclusively in the

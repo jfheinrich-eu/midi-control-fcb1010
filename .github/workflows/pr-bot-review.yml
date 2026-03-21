@@ -2,7 +2,7 @@ name: Bot PR Review
 
 on:
   pull_request:
-    types: [opened, ready_for_review]
+    types: [opened, ready_for_review, synchronize, reopened]
 
 jobs:
   bot-review:
@@ -21,6 +21,20 @@ jobs:
           # jfheinrich-bot account with pull-requests:write access.
           github-token: ${{ secrets.BOT_REVIEW_TOKEN }}
           script: |
+            // Skip if jfheinrich-bot has already submitted an APPROVE review
+            // to avoid duplicate reviews on every synchronize event.
+            const reviews = await github.rest.pulls.listReviews({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+            });
+            const alreadyApproved = reviews.data.some(
+              r => r.user.login === 'jfheinrich-bot' && r.state === 'APPROVED'
+            );
+            if (alreadyApproved) {
+              core.info('jfheinrich-bot has already approved this PR — skipping.');
+              return;
+            }
             await github.rest.pulls.createReview({
               owner: context.repo.owner,
               repo: context.repo.repo,

@@ -9,15 +9,19 @@ jobs:
     name: Add skip-release label
     runs-on: ubuntu-latest
     permissions:
-      pull-requests: write
+      issues: write
     steps:
       - name: Add skip-release label
         uses: actions/github-script@v7
         with:
           script: |
-            await github.rest.issues.addLabels({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              labels: ['skip-release']
-            });
+            try {
+              await github.rest.issues.addLabels({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                labels: ['skip-release']
+              });
+            } catch (error) {
+              core.warning(`Could not add skip-release label: ${error.message}`);
+            }

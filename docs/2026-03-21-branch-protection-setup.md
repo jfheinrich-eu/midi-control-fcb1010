@@ -2,17 +2,27 @@
 
 ## Summary
 
-Configured the `main` branch for protected-branch enforcement and added three
-GitHub Actions workflows that automate pull-request hygiene.
+Configured the `main` branch for protected-branch enforcement, added three
+GitHub Actions workflows that automate pull-request hygiene, and updated the
+label-sync workflow to track the `main` branch.
 
 ## Files Changed
 
 - `CODEOWNERS`
+- `.github/workflows/label-sync.yml` *(branch trigger updated)*
 - `.github/workflows/pr-auto-label.yml` *(new)*
 - `.github/workflows/pr-bot-review.yml` *(new)*
 - `.github/workflows/pr-copilot-review.yml` *(new)*
 
 ## What Changed
+
+### `.github/workflows/label-sync.yml`
+
+Changed the `push` trigger branch from `master` to `main` so that label
+definitions in `.github/labels.yml` are synced whenever changes land on the
+repository's default branch (`main`) instead of the old `master` branch.
+This ensures the `skip-release` label (and all others) stay in sync going
+forward.
 
 ### CODEOWNERS
 
@@ -88,7 +98,8 @@ settings must be applied to the `main` branch through
 
 - Verified `CODEOWNERS` contains all three entries (`@jfheinrich`,
   `@jfheinrich-bot`, `@jfheinrich-eu/maintainers`).
-- Verified all three workflow files were created with correct triggers and
+- Verified `label-sync.yml` push trigger now targets `main` (was `master`).
+- Verified all three new workflow files were created with correct triggers and
   permissions.
 - Verified `skip-release` label already exists in `.github/labels.yml`
   (no label definition change required).

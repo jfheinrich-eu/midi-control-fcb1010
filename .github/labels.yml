@@ -1,6 +1,6 @@
 - name: automated
   color: "ce15f0"
-  description: ""
+  description: "Changes made by automated tools or workflows"
 
 - name: bug
   color: "d73a4a"
@@ -52,7 +52,7 @@
 
 - name: labels
   color: "B429C4"
-  description: "Changes on pr_labeler.yml or labeler.yml"
+  description: "Changes to labels configuration"
 
 - name: lint
   color: "1235C1"
@@ -88,7 +88,7 @@
 
 - name: rust
   color: "3f9cd9"
-  description: ""
+  description: "Rust language files or changes"
 
 - name: skip-release
   color: "B60205"

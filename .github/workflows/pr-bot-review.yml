@@ -1,0 +1,30 @@
+name: Bot PR Review
+
+on:
+  pull_request:
+    types: [opened, ready_for_review]
+
+jobs:
+  bot-review:
+    name: jfheinrich-bot approves owner PRs
+    runs-on: ubuntu-latest
+    permissions: {}
+    # Only run for non-draft PRs authored by @jfheinrich
+    if: |
+      github.event.pull_request.draft == false &&
+      github.event.pull_request.user.login == 'jfheinrich'
+    steps:
+      - name: Submit approving review as jfheinrich-bot
+        uses: actions/github-script@v7
+        with:
+          # BOT_REVIEW_TOKEN must be a PAT or GitHub App token for the
+          # jfheinrich-bot account with pull-requests:write access.
+          github-token: ${{ secrets.BOT_REVIEW_TOKEN }}
+          script: |
+            await github.rest.pulls.createReview({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              pull_number: context.payload.pull_request.number,
+              event: 'APPROVE',
+              body: 'Automated codeowner approval by jfheinrich-bot.'
+            });

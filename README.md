@@ -1,4 +1,11 @@
-# Behringer FCB1010 UnO2 - Cubase MIDI Remote Script
+
+<h1 align="center">Behringer FCB1010 UnO2 - Cubase MIDI Remote Script</h1>
+
+<p align="center">
+	<img src="docs/assets/project-logo.png" alt="Project logo" height="200">
+</p>
+
+<p align="center"><strong>Focused foot control for Cubase transport, tap tempo, and live-friendly workflow.</strong></p>
 
 ## Idea
 This script implements a focused, reliable musician-friendly Cubase transport workflow for a Behringer FCB1010 (UnO2 setup). Footswitches 1 to 8 are active, with deterministic recording stop behavior.

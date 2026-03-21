@@ -7,8 +7,21 @@
 
 <p align="center"><strong>Focused foot control for Cubase transport, tap tempo, and live-friendly workflow.</strong></p>
 
+<p align="center"><strong>Repository:</strong> jfheinrich-eu/midi-control-fcb1010</p>
+
+## Project Links
+
+- License: [MIT](LICENSE)
+- Changelog: [CHANGELOG.md](CHANGELOG.md)
+- Contributing: [CONTRIBUTING.md](CONTRIBUTING.md)
+- Code of Conduct: [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md)
+- Security: [SECURITY.md](SECURITY.md)
+- Support: [SUPPORT.md](SUPPORT.md)
+- Development Guide: [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md)
+- Architecture: [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)
+
 ## Idea
-This script implements a focused, reliable musician-friendly Cubase transport workflow for a Behringer FCB1010 (UnO2 setup). Footswitches 1 to 8 are active, with deterministic recording stop behavior.
+This script implements a focused, reliable musician-friendly Cubase transport workflow for a Behringer FCB1010 (UnO2 setup). Footswitches 1 to 9 are active, with deterministic recording stop behavior.
 
 The on-screen surface is intentionally laid out like the real FCB1010 pedalboard: two expression pedal areas at the top and two rows of five footswitches below, so non-technical players can immediately recognize the device.
 
@@ -33,7 +46,7 @@ Implemented surface design:
 - The Cubase surface is visually arranged like a real FCB1010.
 - Two expression pedal areas are shown at the top.
 - Two rows of five footswitches are shown at the bottom.
-- Footswitches 1 to 8 are now active and placed like the real pedalboard.
+- Footswitches 1 to 9 are now active and placed like the real pedalboard.
 
 Design goals:
 - Deterministic transport behavior
@@ -75,24 +88,23 @@ Possible next steps to evolve this script into a complete FCB1010 profile:
 ### Basic setup
 1. Place the script in the Cubase MIDI Remote local scripts folder.
 2. Reload scripts in Cubase (MIDI Remote -> Scripting Tools -> Reload Scripts).
-3. Add/select one device variant in MIDI Remote Manager.
-4. Ensure your FCB1010 sends the configured notes on MIDI channel 10:
+3. Add the device in MIDI Remote Manager.
+4. Optional: set `LAYOUT` at the top of `Behringer_BehringerFCB1010UnO2.js` (`wide` or `compact`) before reloading scripts.
+5. Ensure your FCB1010 sends the configured notes on MIDI channel 10:
 	- Footswitch 1 -> Note 36
 	- Footswitch 2 -> Note 38
 	- Footswitch 3 -> Note 40
 
-### Device variants (no editor changes required)
-This package now provides two selectable Cubase devices so users can choose the layout without editing files:
+### Layout selection
+The script currently uses a single device registration and layout selection is controlled in code:
 
-| Device Name in Cubase | Layout Goal | Source |
-| --- | --- | --- |
-| BehringerFCB1010UnO2_Wide | Maximum label readability and spacing | Registered by Behringer_BehringerFCB1010UnO2.js |
-| BehringerFCB1010UnO2_Compact | Denser layout with reduced horizontal spacing | Registered by Behringer_BehringerFCB1010UnO2.js |
+- `LAYOUT = 'wide'` for larger spacing and maximum label readability.
+- `LAYOUT = 'compact'` for denser horizontal spacing.
 
-Recommended distribution workflow:
-1. Ship the single script file Behringer_BehringerFCB1010UnO2.js.
-2. Ask users to pick the preferred device variant directly in Cubase.
-3. No script editing is required for normal use.
+Future enhancement path:
+
+- Registration helper functions for multiple variants are already present in the script.
+- If needed, this can be extended to expose separate Cubase device entries.
 
 ## MIDI Configuration
 This script currently uses footswitches 1 to 9.

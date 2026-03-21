@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Support and Usage Questions
+    url: https://github.com/jfheinrich-eu/midi-control-fcb1010/blob/main/SUPPORT.md
+    about: Use support guidance for setup and usage topics.

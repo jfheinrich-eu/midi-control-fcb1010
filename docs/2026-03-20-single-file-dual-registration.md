@@ -1,5 +1,8 @@
 # Change Log - 2026-03-20
 
+> **Status: Historical intent document.**  
+> This document describes the intended dual-device registration design. In the current codebase, only a single device variant is registered at startup, controlled by the top-level `LAYOUT` variable. See the "Layout selection" section in README.md for the actual current behavior.
+
 ## Summary
 Switched to single-file dual device registration so both wide and compact variants are reliably visible from one script in Cubase.
 

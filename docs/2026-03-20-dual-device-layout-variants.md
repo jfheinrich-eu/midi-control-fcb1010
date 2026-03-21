@@ -1,5 +1,8 @@
 # Change Log - 2026-03-20
 
+> **Status: Historical document — superseded.**  
+> This document describes the original two-file approach using separate `Behringer_BehringerFCB1010UnO2_Compact.js`. That approach was replaced by a single-file model. See [2026-03-20-single-file-dual-registration.md](2026-03-20-single-file-dual-registration.md) for the subsequent design, and README.md for the current behavior.
+
 ## Summary
 Implemented two end-user-selectable MIDI Remote devices so users can choose wide or compact UI layout directly in Cubase without editing script files.
 

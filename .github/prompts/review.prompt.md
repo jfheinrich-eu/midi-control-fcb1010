@@ -47,7 +47,7 @@ Perform a thorough, critical review of the entire project. Check every area list
 
 - `.github/ISSUE_TEMPLATE/`: bug report, feature request, and `config.yml` present and well-formed?
 - `.github/PULL_REQUEST_TEMPLATE.md`: checklist covers FS1–FS9, tap tempo, metronome, regression?
-- `.github/copilot-instructions.md`: up to date with current project rules?
+- `.github/copilot-instructions.md`: present and up to date with current project rules? (See [.github/copilot-instructions.md](../copilot-instructions.md))
 - Links in README and docs: valid relative paths? No dead links?
 
 ---

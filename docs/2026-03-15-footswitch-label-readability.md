@@ -1,5 +1,8 @@
 # Change Log - 2026-03-15
 
+> **Status: Partially outdated.**  
+> This document references the config key `footswitchLabelWidthPadding`. That key was replaced by `footswitchLabelWidth` in the final layout preset design. See [2026-03-20-surface-layout-presets.md](2026-03-20-surface-layout-presets.md) for the current geometry model.
+
 ## Summary
 Implemented a robust label readability hardening for footswitch labels to prevent clipped text in the Cubase MIDI Remote surface.
 

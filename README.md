@@ -214,4 +214,4 @@ Result:
 
 ## Credits
 - Script author: JFHeinrich
-- Script engineering and iterative refinement were created with help from GitHub Copilot (GPT-5.3-Codex).
+- Script engineering and iterative refinement were created with help from GitHub Copilot.

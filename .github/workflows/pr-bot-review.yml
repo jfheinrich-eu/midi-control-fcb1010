@@ -8,7 +8,8 @@ jobs:
   bot-review:
     name: jfheinrich-bot approves owner PRs
     runs-on: ubuntu-latest
-    permissions: {}
+    permissions:
+      pull-requests: write
     # Only run for non-draft PRs authored by @jfheinrich
     if: |
       github.event.pull_request.draft == false &&

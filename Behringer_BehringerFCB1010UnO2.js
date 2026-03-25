@@ -17,15 +17,15 @@
  * Copyright (c) JFHeinrich <contact@jfheinrich.eu>
  */
 
-var midiremote_api = require('midiremote_api_v1')
+const midiremote_api = require('midiremote_api_v1')
 
 // ─────────────────────────────────────────────────────────────────────────────
 // LAYOUT SELECTION  –  change to 'compact' for a narrower button layout
 //                      ('wide' = default, larger buttons)
 // ─────────────────────────────────────────────────────────────────────────────
-var LAYOUT = 'wide'
+const LAYOUT = 'wide'
 
-var config = {
+const config = {
 	driver: {
 		vendorName: 'Behringer',
 		deviceName: 'BehringerFCB1010UnO2',
@@ -96,7 +96,9 @@ var config = {
 		minTapIntervalMs: 250,
 		maxTapIntervalMs: 2000,
 		defaultBpm: 120,
-		smoothing: 0.35
+		// Weight applied to the previous BPM value.
+		// Lower = more reactive (new tap dominates), higher = more stable (history dominates).
+		historyWeight: 0.35
 	},
 	state: {
 		wasRecordingKey: 'wasRecording',
@@ -108,20 +110,20 @@ var config = {
 }
 
 /**
- * @param {*} activeDevice
+ * @param {MidiRemoteActiveDevice} activeDevice
  * @param {string} key
  * @param {boolean} fallback
  * @returns {boolean}
  */
 function getBooleanState(activeDevice, key, fallback) {
-	var raw = activeDevice.getState(key)
+	const raw = activeDevice.getState(key)
 	if (raw === '1' || raw === 'true') return true
 	if (raw === '0' || raw === 'false') return false
 	return fallback
 }
 
 /**
- * @param {*} activeDevice
+ * @param {MidiRemoteActiveDevice} activeDevice
  * @param {string} key
  * @param {boolean} value
  */
@@ -130,19 +132,19 @@ function setBooleanState(activeDevice, key, value) {
 }
 
 /**
- * @param {*} activeDevice
+ * @param {MidiRemoteActiveDevice} activeDevice
  * @param {string} key
  * @param {number} fallback
  * @returns {number}
  */
 function getIntegerState(activeDevice, key, fallback) {
-	var raw = activeDevice.getState(key)
-	var parsed = parseInt(raw, 10)
+	const raw = activeDevice.getState(key)
+	const parsed = parseInt(raw, 10)
 	return isNaN(parsed) ? fallback : parsed
 }
 
 /**
- * @param {*} activeDevice
+ * @param {MidiRemoteActiveDevice} activeDevice
  * @param {string} key
  * @param {number} value
  */
@@ -151,14 +153,14 @@ function setIntegerState(activeDevice, key, value) {
 }
 
 /**
- * @param {*} activeDevice
- * @param {*} stopPulse
- * @param {*} localConfig
+ * @param {MidiRemoteActiveDevice} activeDevice
+ * @param {SurfaceCustomValueVariable} stopPulse
+ * @param {object} localConfig
  */
 function emitStopPulse(activeDevice, stopPulse, localConfig) {
-	var nowMs = Date.now()
-	var stateConfig = localConfig.state
-	var lastStopPulseMs = getIntegerState(activeDevice, stateConfig.lastStopPulseMsKey, 0)
+	const nowMs = Date.now()
+	const stateConfig = localConfig.state
+	const lastStopPulseMs = getIntegerState(activeDevice, stateConfig.lastStopPulseMsKey, 0)
 
 	if (nowMs - lastStopPulseMs >= stateConfig.stopPulseDebounceMs) {
 		stopPulse.setProcessValue(activeDevice, 1)
@@ -167,7 +169,7 @@ function emitStopPulse(activeDevice, stopPulse, localConfig) {
 	}
 }
 
-var stateApi = {
+const stateApi = {
 	getBooleanState: getBooleanState,
 	setBooleanState: setBooleanState,
 	getIntegerState: getIntegerState,
@@ -176,7 +178,8 @@ var stateApi = {
 }
 
 /**
- * @param {*} surfaceConfig
+ * @param {SurfaceConfig} surfaceConfig
+ * @returns {Array<{x: number, y: number}>}
  */
 function makeFootswitchPositions(surfaceConfig) {
 	return [
@@ -194,16 +197,16 @@ function makeFootswitchPositions(surfaceConfig) {
 }
 
 /**
- * @param {*} surfaceConfig
- * @returns {*}
+ * @param {SurfaceConfig} surfaceConfig
+ * @returns {SurfaceConfig}
  */
 function resolveSurfaceConfig(surfaceConfig) {
-	var layoutMap = surfaceConfig.layouts || {}
-	var presetName = surfaceConfig.layoutPreset
-	var fallbackPresetName = 'wide'
-	var preset = layoutMap[presetName] || layoutMap[fallbackPresetName] || {}
-	var resolved = {}
-	var key
+	const layoutMap = surfaceConfig.layouts || {}
+	const presetName = surfaceConfig.layoutPreset
+	const fallbackPresetName = 'wide'
+	const preset = layoutMap[presetName] || layoutMap[fallbackPresetName] || {}
+	const resolved = {}
+	let key
 
 	for (key in surfaceConfig) {
 		if (Object.prototype.hasOwnProperty.call(surfaceConfig, key) && key !== 'layouts') {
@@ -227,7 +230,7 @@ function resolveSurfaceConfig(surfaceConfig) {
  * @returns {string}
  */
 function normalizeRoleLabel(roleName, maxLength) {
-	var normalized = typeof roleName === 'string' ? roleName.trim() : ''
+	const normalized = typeof roleName === 'string' ? roleName.trim() : ''
 	if (!normalized) return 'N/A'
 	if (!maxLength || maxLength < 1) return normalized
 	if (normalized.length <= maxLength) return normalized
@@ -236,42 +239,43 @@ function normalizeRoleLabel(roleName, maxLength) {
 }
 
 /**
- * @param {*} localConfig
+ * @param {object} localConfig
  * @param {number} roleIndex
  * @returns {string}
  */
 function makeFootswitchLabel(localConfig, roleIndex) {
-	var roleList = localConfig.footswitch && localConfig.footswitch.roles
-	var role = roleList && roleIndex < roleList.length ? roleList[roleIndex] : ''
-	var maxLength = localConfig.footswitch && localConfig.footswitch.maxRoleLabelLength
-	var safeRole = normalizeRoleLabel(role, maxLength)
+	const roleList = localConfig.footswitch && localConfig.footswitch.roles
+	const role = roleList && roleIndex < roleList.length ? roleList[roleIndex] : ''
+	const maxLength = localConfig.footswitch && localConfig.footswitch.maxRoleLabelLength
+	const safeRole = normalizeRoleLabel(role, maxLength)
 	return 'FS' + String(roleIndex + 1) + ' ' + safeRole
 }
 
 /**
- * @param {*} surface
- * @param {*} page
- * @param {*} midiInput
- * @param {*} localConfig
+ * @param {MidiRemoteSurface} surface
+ * @param {MappingPage} page
+ * @param {MidiRemotePort} midiInput
+ * @param {object} localConfig
+ * @returns {SurfaceElements}
  */
 function createSurface(surface, page, midiInput, localConfig) {
-	var surfaceConfig = resolveSurfaceConfig(localConfig.surface)
-	var midiConfig = localConfig.midi
+	const surfaceConfig = resolveSurfaceConfig(localConfig.surface)
+	const midiConfig = localConfig.midi
 
 	surface.makeBlindPanel(0, 0, surfaceConfig.width, surfaceConfig.height)
 	surface.makeBlindPanel(surfaceConfig.leftPedalX, surfaceConfig.pedalY, surfaceConfig.pedalWidth, surfaceConfig.pedalHeight)
 	surface.makeBlindPanel(surfaceConfig.rightPedalX, surfaceConfig.pedalY, surfaceConfig.pedalWidth, surfaceConfig.pedalHeight)
 
-	var footswitchPositions = makeFootswitchPositions(surfaceConfig)
-	var footswitchButtons = []
-	var footswitchLamps = []
-	var footswitchInnerLabels = []
+	const footswitchPositions = makeFootswitchPositions(surfaceConfig)
+	const footswitchButtons = []
+	const footswitchLamps = []
+	const footswitchInnerLabels = []
 
-	for (var footswitchIndex = 0; footswitchIndex < footswitchPositions.length; ++footswitchIndex) {
-		var pos = footswitchPositions[footswitchIndex]
-		var buttonX = pos.x - (surfaceConfig.footswitchWidth - surfaceConfig.footswitchHeight) / 2
-		var button = surface.makeButton(buttonX, pos.y, surfaceConfig.footswitchWidth, surfaceConfig.footswitchHeight)
-		var lamp = surface.makeLamp(
+	for (let footswitchIndex = 0; footswitchIndex < footswitchPositions.length; ++footswitchIndex) {
+		const pos = footswitchPositions[footswitchIndex]
+		const buttonX = pos.x - (surfaceConfig.footswitchWidth - surfaceConfig.footswitchHeight) / 2
+		const button = surface.makeButton(buttonX, pos.y, surfaceConfig.footswitchWidth, surfaceConfig.footswitchHeight)
+		const lamp = surface.makeLamp(
 			buttonX + (surfaceConfig.footswitchWidth - surfaceConfig.footswitchLedSize) / 2,
 			pos.y - 0.5,
 			surfaceConfig.footswitchLedSize,
@@ -283,7 +287,7 @@ function createSurface(surface, page, midiInput, localConfig) {
 			.bindToNote(midiConfig.channelZeroBased, midiConfig.footswitchNotes[footswitchIndex])
 
 		if (footswitchIndex === 4) {
-			var innerLabel = surface.makeLabelField(buttonX + 0.55, pos.y + 0.9, surfaceConfig.footswitchWidth - 1.1, 0.7)
+			const innerLabel = surface.makeLabelField(buttonX + 0.55, pos.y + 0.9, surfaceConfig.footswitchWidth - 1.1, 0.7)
 			innerLabel.relateTo(button)
 			page.setLabelFieldText(innerLabel, 'TAP')
 			footswitchInnerLabels.push(innerLabel)
@@ -295,18 +299,18 @@ function createSurface(surface, page, midiInput, localConfig) {
 		footswitchLamps.push(lamp)
 	}
 
-	var pedal1Label = surface.makeLabelField(surfaceConfig.leftPedalX + 2.6, surfaceConfig.pedalY + surfaceConfig.pedalHeight + 0.15, 5, 1)
-	var pedal2Label = surface.makeLabelField(surfaceConfig.rightPedalX + 2.6, surfaceConfig.pedalY + surfaceConfig.pedalHeight + 0.15, 5, 1)
+	const pedal1Label = surface.makeLabelField(surfaceConfig.leftPedalX + 2.6, surfaceConfig.pedalY + surfaceConfig.pedalHeight + 0.15, 5, 1)
+	const pedal2Label = surface.makeLabelField(surfaceConfig.rightPedalX + 2.6, surfaceConfig.pedalY + surfaceConfig.pedalHeight + 0.15, 5, 1)
 	page.setLabelFieldText(pedal1Label, 'Pedal 1')
 	page.setLabelFieldText(pedal2Label, 'Pedal 2')
 
-	for (var labelIndex = 0; labelIndex < footswitchPositions.length; ++labelIndex) {
-		var labelPos = footswitchPositions[labelIndex]
-		var labelWidth = surfaceConfig.footswitchLabelWidth
-		var labelHeight = surfaceConfig.footswitchLabelHeight
-		var labelX = labelPos.x - (labelWidth - surfaceConfig.footswitchHeight) / 2
-		var fsLabelY = labelPos.y + surfaceConfig.footswitchHeight + surfaceConfig.footswitchLabelYOffset
-		var fsLabel = surface.makeLabelField(labelX, fsLabelY, labelWidth, labelHeight)
+	for (let labelIndex = 0; labelIndex < footswitchPositions.length; ++labelIndex) {
+		const labelPos = footswitchPositions[labelIndex]
+		const labelWidth = surfaceConfig.footswitchLabelWidth
+		const labelHeight = surfaceConfig.footswitchLabelHeight
+		const labelX = labelPos.x - (labelWidth - surfaceConfig.footswitchHeight) / 2
+		const fsLabelY = labelPos.y + surfaceConfig.footswitchHeight + surfaceConfig.footswitchLabelYOffset
+		const fsLabel = surface.makeLabelField(labelX, fsLabelY, labelWidth, labelHeight)
 		page.setLabelFieldText(fsLabel, makeFootswitchLabel(localConfig, labelIndex))
 	}
 
@@ -337,7 +341,7 @@ function createSurface(surface, page, midiInput, localConfig) {
  * @param {*} localConfig
  */
 function createBindings(page, ui, localStateApi, localConfig) {
-	var recordBinding = page.makeValueBinding(ui.recordButton.mSurfaceValue, page.mHostAccess.mTransport.mValue.mRecord)
+	const recordBinding = page.makeValueBinding(ui.recordButton.mSurfaceValue, page.mHostAccess.mTransport.mValue.mRecord)
 		.setTypeDefault()
 
 	page.makeValueBinding(ui.playButton.mSurfaceValue, page.mHostAccess.mTransport.mValue.mStart)
@@ -356,57 +360,53 @@ function createBindings(page, ui, localStateApi, localConfig) {
 	page.makeValueBinding(ui.fsButtons[6].mSurfaceValue, page.mHostAccess.mTransport.mValue.mForward).setTypeDefault().filterByValueRange(0.5, 1)
 	page.makeCommandBinding(ui.fsButtons[7].mSurfaceValue, 'Edit', 'Undo')
 
-	var playStatusBinding = page.makeValueBinding(ui.playStatus, page.mHostAccess.mTransport.mValue.mStart).setTypeDefault()
-	var stopStatusBinding = page.makeValueBinding(ui.stopStatus, page.mHostAccess.mTransport.mValue.mStop).setTypeDefault()
-	var cycleStatusBinding = page.makeValueBinding(ui.cycleStatus, page.mHostAccess.mTransport.mValue.mCycleActive).setTypeDefault()
-	var metronomeStatusBinding = page.makeValueBinding(ui.metronomeStatus, page.mHostAccess.mTransport.mValue.mMetronomeActive).setTypeDefault()
-	var activeMappingRef = null
+	const playStatusBinding = page.makeValueBinding(ui.playStatus, page.mHostAccess.mTransport.mValue.mStart).setTypeDefault()
+	const stopStatusBinding = page.makeValueBinding(ui.stopStatus, page.mHostAccess.mTransport.mValue.mStop).setTypeDefault()
+	const cycleStatusBinding = page.makeValueBinding(ui.cycleStatus, page.mHostAccess.mTransport.mValue.mCycleActive).setTypeDefault()
+	const metronomeStatusBinding = page.makeValueBinding(ui.metronomeStatus, page.mHostAccess.mTransport.mValue.mMetronomeActive).setTypeDefault()
+	let activeMappingRef = null
 
-	page.mOnActivate = function () {
-		activeMappingRef = arguments[1]
+	page.mOnActivate = function (_context, mapping) {
+		activeMappingRef = mapping
 	}
 
 	page.mOnDeactivate = function () {
 		activeMappingRef = null
 	}
 
-	playStatusBinding.mOnValueChange = function () {
-		var activeDevice = arguments[0]
-		var currValue = Number(arguments[2])
+	playStatusBinding.mOnValueChange = function (activeDevice, _mapping, currValue) {
+		currValue = Number(currValue)
 		if (!activeDevice || isNaN(currValue)) return
 		ui.playLamp.mSurfaceValue.setProcessValue(activeDevice, currValue)
 		ui.stopLamp.mSurfaceValue.setProcessValue(activeDevice, currValue >= 0.5 ? 0 : 1)
 	}
 
-	stopStatusBinding.mOnValueChange = function () {
-		var activeDevice = arguments[0]
-		var currValue = Number(arguments[2])
-		if (!activeDevice || isNaN(currValue)) return
-		ui.stopLamp.mSurfaceValue.setProcessValue(activeDevice, currValue)
+	// C1: Stop lamp is driven exclusively by the play-state inversion above.
+	// Driving it directly from mStop would cause the lamp to go dark when stop is pressed
+	// while already stopped (mStop fires 1→0 but mStart stays 0, so no playStatus callback fires).
+	stopStatusBinding.mOnValueChange = function (_activeDevice, _mapping, _currValue) {
+		// intentionally left blank — stop lamp state is managed by playStatusBinding.mOnValueChange
 	}
 
-	cycleStatusBinding.mOnValueChange = function () {
-		var activeDevice = arguments[0]
-		var currValue = Number(arguments[2])
+	cycleStatusBinding.mOnValueChange = function (activeDevice, _mapping, currValue) {
+		currValue = Number(currValue)
 		if (!activeDevice || isNaN(currValue)) return
 		ui.cycleLamp.mSurfaceValue.setProcessValue(activeDevice, currValue)
 	}
 
-	metronomeStatusBinding.mOnValueChange = function () {
-		var activeDevice = arguments[0]
-		var currValue = Number(arguments[2])
+	metronomeStatusBinding.mOnValueChange = function (activeDevice, _mapping, currValue) {
+		currValue = Number(currValue)
 		if (!activeDevice || isNaN(currValue)) return
 		ui.metronomeLamp.mSurfaceValue.setProcessValue(activeDevice, currValue)
 	}
 
-	recordBinding.mOnValueChange = function () {
-		var activeDevice = arguments[0]
-		var currValue = Number(arguments[2])
+	recordBinding.mOnValueChange = function (activeDevice, _mapping, currValue) {
+		currValue = Number(currValue)
 		if (!activeDevice || isNaN(currValue)) return
 
 		ui.recordLamp.mSurfaceValue.setProcessValue(activeDevice, currValue)
-		var isRecordingNow = currValue >= 0.5
-		var wasRecording = localStateApi.getBooleanState(activeDevice, localConfig.state.wasRecordingKey, false)
+		const isRecordingNow = currValue >= 0.5
+		const wasRecording = localStateApi.getBooleanState(activeDevice, localConfig.state.wasRecordingKey, false)
 
 		if (wasRecording && !isRecordingNow) {
 			localStateApi.emitStopPulse(activeDevice, ui.stopPulse, localConfig)
@@ -415,18 +415,16 @@ function createBindings(page, ui, localStateApi, localConfig) {
 		localStateApi.setBooleanState(activeDevice, localConfig.state.wasRecordingKey, isRecordingNow)
 	}
 
-	ui.playButton.mSurfaceValue.mOnProcessValueChange = function () {
-		var activeDevice = arguments[0]
-		var currValue = Number(arguments[1])
+	ui.playButton.mSurfaceValue.mOnProcessValueChange = function (activeDevice, currValue) {
+		currValue = Number(currValue)
 		if (!activeDevice || isNaN(currValue)) return
 		if (currValue < 0.5) {
 			localStateApi.emitStopPulse(activeDevice, ui.stopPulse, localConfig)
 		}
 	}
 
-	ui.stopButton.mSurfaceValue.mOnProcessValueChange = function () {
-		var activeDevice = arguments[0]
-		var currValue = Number(arguments[1])
+	ui.stopButton.mSurfaceValue.mOnProcessValueChange = function (activeDevice, currValue) {
+		currValue = Number(currValue)
 		if (!activeDevice || isNaN(currValue)) return
 		if (currValue >= 0.5) {
 			localStateApi.emitStopPulse(activeDevice, ui.stopPulse, localConfig)
@@ -436,43 +434,40 @@ function createBindings(page, ui, localStateApi, localConfig) {
 		}
 	}
 
-	ui.fsButtons[5].mSurfaceValue.mOnProcessValueChange = function () {
-		var activeDevice = arguments[0]
-		var currValue = Number(arguments[1])
+	ui.fsButtons[5].mSurfaceValue.mOnProcessValueChange = function (activeDevice, currValue) {
+		currValue = Number(currValue)
 		if (!activeDevice || isNaN(currValue)) return
 		ui.fsLamps[5].mSurfaceValue.setProcessValue(activeDevice, currValue >= 0.5 ? 1 : 0)
 	}
 
-	ui.fsButtons[6].mSurfaceValue.mOnProcessValueChange = function () {
-		var activeDevice = arguments[0]
-		var currValue = Number(arguments[1])
+	ui.fsButtons[6].mSurfaceValue.mOnProcessValueChange = function (activeDevice, currValue) {
+		currValue = Number(currValue)
 		if (!activeDevice || isNaN(currValue)) return
 		ui.fsLamps[6].mSurfaceValue.setProcessValue(activeDevice, currValue >= 0.5 ? 1 : 0)
 	}
 
-	ui.fsButtons[7].mSurfaceValue.mOnProcessValueChange = function () {
-		var activeDevice = arguments[0]
-		var currValue = Number(arguments[1])
+	ui.fsButtons[7].mSurfaceValue.mOnProcessValueChange = function (activeDevice, currValue) {
+		currValue = Number(currValue)
 		if (!activeDevice || isNaN(currValue)) return
 		ui.fsLamps[7].mSurfaceValue.setProcessValue(activeDevice, currValue >= 0.5 ? 1 : 0)
 	}
 
-	ui.fsButtons[4].mSurfaceValue.mOnProcessValueChange = function () {
-		var activeDevice = arguments[0]
-		var currValue = Number(arguments[1])
+	ui.fsButtons[4].mSurfaceValue.mOnProcessValueChange = function (activeDevice, currValue) {
+		currValue = Number(currValue)
 		if (!activeDevice || isNaN(currValue)) return
 		ui.fsLamps[4].mSurfaceValue.setProcessValue(activeDevice, currValue >= 0.5 ? 1 : 0)
 		if (currValue < 0.5 || !activeMappingRef) return
 
-		var nowMs = Date.now()
-		var tapConfig = localConfig.tapTempo
-		var lastTapMs = localStateApi.getIntegerState(activeDevice, localConfig.state.lastTapMsKey, 0)
-		var intervalMs = nowMs - lastTapMs
+		const nowMs = Date.now()
+		const tapConfig = localConfig.tapTempo
+		const lastTapMs = localStateApi.getIntegerState(activeDevice, localConfig.state.lastTapMsKey, 0)
+		const intervalMs = nowMs - lastTapMs
 
 		if (intervalMs >= tapConfig.minTapIntervalMs && intervalMs <= tapConfig.maxTapIntervalMs) {
-			var measuredBpm = 60000 / intervalMs
-			var previousBpm = localStateApi.getIntegerState(activeDevice, localConfig.state.tapTempoBpmKey, tapConfig.defaultBpm)
-			var smoothedBpm = Math.round((previousBpm * tapConfig.smoothing) + (measuredBpm * (1 - tapConfig.smoothing)))
+			const measuredBpm = 60000 / intervalMs
+			const previousBpm = localStateApi.getIntegerState(activeDevice, localConfig.state.tapTempoBpmKey, tapConfig.defaultBpm)
+			// historyWeight blends previous BPM into the new tap measurement for smooth tempo changes
+			const smoothedBpm = Math.round((previousBpm * tapConfig.historyWeight) + (measuredBpm * (1 - tapConfig.historyWeight)))
 			page.mHostAccess.mTransport.mTimeDisplay.setTempoBPM(activeMappingRef, smoothedBpm)
 			localStateApi.setIntegerState(activeDevice, localConfig.state.tapTempoBpmKey, smoothedBpm)
 		}
@@ -482,50 +477,50 @@ function createBindings(page, ui, localStateApi, localConfig) {
 }
 
 /**
- * @param {*} localConfig
- * @returns {*}
+ * @param {object} localConfig
+ * @returns {object}
  */
 function cloneConfig(localConfig) {
 	return JSON.parse(JSON.stringify(localConfig))
 }
 
 /**
- * @param {*} baseConfig
+ * @param {object} baseConfig
  * @param {string} deviceName
  * @param {string} layoutPreset
- * @returns {*}
+ * @returns {object}
  */
 function makeVariantConfig(baseConfig, deviceName, layoutPreset) {
-	var variantConfig = cloneConfig(baseConfig)
+	const variantConfig = cloneConfig(baseConfig)
 	variantConfig.driver.deviceName = deviceName
 	variantConfig.surface.layoutPreset = layoutPreset
 	return variantConfig
 }
 
 /**
- * @param {*} localConfig
+ * @param {object} localConfig
  */
 function registerDevice(localConfig) {
-	var deviceDriver = midiremote_api.makeDeviceDriver(
+	const deviceDriver = midiremote_api.makeDeviceDriver(
 		localConfig.driver.vendorName,
 		localConfig.driver.deviceName,
 		localConfig.driver.createdBy
 	)
 
-	var midiInput = deviceDriver.mPorts.makeMidiInput()
-	var midiOutput = deviceDriver.mPorts.makeMidiOutput()
+	const midiInput = deviceDriver.mPorts.makeMidiInput()
+	const midiOutput = deviceDriver.mPorts.makeMidiOutput()
 
-	for (var i = 0; i < localConfig.detection.portNames.length; ++i) {
-		var portName = localConfig.detection.portNames[i]
+	for (let i = 0; i < localConfig.detection.portNames.length; ++i) {
+		const portName = localConfig.detection.portNames[i]
 		deviceDriver.makeDetectionUnit().detectPortPair(midiInput, midiOutput)
 			.expectInputNameEquals(portName)
 			.expectOutputNameEquals(portName)
 	}
 
-	var surface = deviceDriver.mSurface
-	var page = deviceDriver.mMapping.makePage(localConfig.page.recording)
-	var ui = createSurface(surface, page, midiInput, localConfig)
-	createBindings(page, ui, stateApi, localConfig)
+	const surface = deviceDriver.mSurface
+	const page = deviceDriver.mMapping.makePage(localConfig.page.recording)
+	const surfaceElements = createSurface(surface, page, midiInput, localConfig)
+	createBindings(page, surfaceElements, stateApi, localConfig)
 }
 
 // Register the selected layout variant (change LAYOUT at the top of this file to switch).

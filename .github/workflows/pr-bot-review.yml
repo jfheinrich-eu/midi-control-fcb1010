@@ -15,7 +15,7 @@ jobs:
       github.event.pull_request.user.login == 'jfheinrich'
     steps:
       - name: Submit approving review as jfheinrich-bot
-        uses: actions/github-script@v7
+        uses: actions/github-script@60a0d83039f74b59c328d781e62d1b2160834302 # v7.0.1
         with:
           # BOT_REVIEW_TOKEN must be a PAT or GitHub App token for the
           # jfheinrich-bot account with pull-requests:write access.

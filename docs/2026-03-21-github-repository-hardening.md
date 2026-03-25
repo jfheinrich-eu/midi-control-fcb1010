@@ -17,7 +17,7 @@ Expanded the project structure to a public GitHub-ready repository baseline for 
 - .gitignore
 - .editorconfig
 - .gitattributes
-- .github/CONTRIBUTING_WITH_COPILOT.md
+- .github/copilot-instructions.md
 - .github/ISSUE_TEMPLATE/bug_report.md
 - .github/ISSUE_TEMPLATE/feature_request.md
 - .github/ISSUE_TEMPLATE/config.yml
@@ -35,7 +35,7 @@ Expanded the project structure to a public GitHub-ready repository baseline for 
 - Added repository hygiene files for text normalization, editor consistency, and ignore patterns.
 - Added GitHub collaboration templates for bug reports, feature requests, and pull requests.
 - Added technical maintainer documentation (`docs/DEVELOPMENT.md`, `docs/ARCHITECTURE.md`).
-- Moved Copilot-specific contributor guidance from root to `.github/CONTRIBUTING_WITH_COPILOT.md`.
+- Moved Copilot-specific contributor guidance from root to `.github/copilot-instructions.md`.
 - Updated README to:
   - Include repository identity (`jfheinrich-eu/midi-control-fcb1010`).
   - Link key governance files.
@@ -52,6 +52,6 @@ Expanded the project structure to a public GitHub-ready repository baseline for 
 ## Validation Performed
 
 - Verified all new top-level and `.github` files were created.
-- Verified `copilot_instructions.md` content was preserved under `.github/CONTRIBUTING_WITH_COPILOT.md`.
+- Verified `copilot_instructions.md` content was preserved under `.github/copilot-instructions.md`.
 - Verified README contains repository links and corrected functional statements.
 - Verified issue template config uses an absolute GitHub support link.

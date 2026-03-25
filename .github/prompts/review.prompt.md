@@ -49,6 +49,13 @@ Perform a thorough, critical review of the entire project. Check every area list
 - `.github/PULL_REQUEST_TEMPLATE.md`: checklist covers FS1–FS9, tap tempo, metronome, regression?
 - `.github/copilot-instructions.md`: present and up to date with current project rules? (See [.github/copilot-instructions.md](../copilot-instructions.md))
 - Links in README and docs: valid relative paths? No dead links?
+- `.github/workflows/`: are all workflow files present and well-formed?
+  - Do all `uses:` steps reference actions pinned to a full SHA (not a floating tag like `@v1`)?
+  - Are `permissions:` scopes minimal (least-privilege)?
+  - Are `if:` conditions correct and not vacuously true?
+  - Are any secrets referenced actually expected to exist in the repository?
+- `.github/labels.yml`: are all labels used in `pr-auto-label.yml` and other workflows defined here?
+  - Are label names, colors, and descriptions consistent with the project's PR labeling strategy?
 
 ---
 
@@ -59,6 +66,20 @@ Perform a thorough, critical review of the entire project. Check every area list
 - Every change since project inception is documented in either `README.md` or `docs/`?
 - No third-party code present without attribution and license?
 - No code or content from this repository has been exposed externally?
+
+---
+
+## 6. Discovery Of Unlisted Files
+
+- Look for newly added or previously unreviewed files that are relevant to quality, behavior, security, release process, or maintainability but are not explicitly covered by sections 1-5.
+- Always explicitly check these files as part of discovery:
+  - `UnO2_Cubase_OBS_Setup.txt` — verify FS descriptions match the current driver script assignments.
+  - All files under `.github/workflows/` — verify presence, structure, and SHA-pinning of all `uses:` steps.
+  - `.github/labels.yml` — verify all labels referenced in workflows are defined here.
+- For each relevant file found, report:
+	- why the file is relevant,
+	- whether it should be integrated into an existing review section,
+	- a concrete suggestion for where and how to integrate it.
 
 ---
 
@@ -79,3 +100,12 @@ For each finding:
 - **File**: path (and line number if applicable)
 - **Issue**: concise description
 - **Fix**: concrete recommendation
+
+## Output Requirements
+
+- Do not only display the review results in chat.
+- Also create a markdown report file in the repository root named with this timestamp pattern:
+	- `YYYY-MM-DD_HH:MM:SS-review.md`
+	- example: `2026-03-25_12:34:53-review.md`
+- The report file must contain the same findings shown in chat.
+- All links in the report file must be relative repository links and must resolve correctly.

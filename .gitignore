@@ -13,6 +13,9 @@ Thumbs.db
 *.tmp
 *.temp
 
+# Generated review reports
+????-??-??_??:??:??-review.md
+
 # Node (optional tooling)
 node_modules/
 

@@ -6,7 +6,7 @@ The format is based on Keep a Changelog, and this project aims to follow Semanti
 
 ## [Unreleased]
 
-## [0.2.0] - 2026-03-25
+## [0.2.0] - 2026-03-25 (revised)
 
 ### Added
 - Repository governance files (`CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `SUPPORT.md`).
@@ -19,7 +19,7 @@ The format is based on Keep a Changelog, and this project aims to follow Semanti
 - Fixed competing stop-lamp callbacks (C1): stop lamp is now driven exclusively by play-state inversion.
 - Replaced all `arguments[n]` callback patterns with named parameters (W2).
 - Renamed `tapTempo.smoothing` to `tapTempo.historyWeight` for semantic clarity (S1).
-- Converted all `var` declarations to `const`/`let` throughout the driver script (W1).
+- Reverted `const`/`let` to `var` throughout the driver script: Cubase MIDI Remote engine runs in ES5 mode where `const` is a reserved keyword and causes a syntax error at load time.
 - Improved JSDoc types from `{*}` to descriptive types across all functions.
 - Pinned GitHub Actions to SHA-locked versions (S5).
 - PR template and DEVELOPMENT.md now cover FS4, FS6, FS7, FS8 test cases (W3, W4).

@@ -45,6 +45,12 @@ All `var` declarations were converted to `const` (for bindings and values that a
 or `let` (for loop counters and mutable references). This makes scoping explicit and prevents
 accidental re-declaration bugs.
 
+**Revision (2026-03-25)**: After deployment, Cubase reported a syntax error at load time.
+ES5 parser validation (`acorn --ecma5`) confirmed that `const` is a reserved keyword in ES5 and
+causes a parse failure. Cubase's MIDI Remote scripting engine operates in ES5 mode despite
+Steinberg documenting "ES2015+" support. All `const`/`let` declarations were reverted to `var`.
+The other improvements (C1, W2, S1) are unaffected.
+
 ---
 
 ### W2 — `arguments[n]` in all callbacks (Warning)

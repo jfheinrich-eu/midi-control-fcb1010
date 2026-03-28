@@ -20,6 +20,89 @@
 var midiremote_api = require('midiremote_api_v1')
 
 // ─────────────────────────────────────────────────────────────────────────────
+// TYPE DEFINITIONS  –  JSDoc stubs for Steinberg MIDI Remote API v1 objects
+//                      and project-specific composite types.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Active device instance provided by the Steinberg MIDI Remote API v1.
+ * Exposes `getState(key)` / `setState(key, value)` for per-device persistence.
+ * @typedef {object} MidiRemoteActiveDevice
+ */
+
+/**
+ * Surface object returned by `midiremote_api.makeDeviceDriver().mSurface`.
+ * Used to create buttons, lamps, label fields, and custom value variables.
+ * @typedef {object} MidiRemoteSurface
+ */
+
+/**
+ * Mapping page returned by `driver.mMapping.makePage(name)`.
+ * Binds surface values to host parameters and manages label fields.
+ * @typedef {object} MappingPage
+ */
+
+/**
+ * MIDI port object used for note-binding surface elements.
+ * @typedef {object} MidiRemotePort
+ */
+
+/**
+ * Resolved surface layout config, derived from `config.surface` with the
+ * active layout preset merged in. Plain key/value object.
+ * @typedef {object} SurfaceConfig
+ */
+
+/**
+ * All interactive surface elements created by `createSurface`.
+ * @typedef {object} SurfaceElements
+ * @property {Array<object>} fsButtons            - All ten footswitch button surface values.
+ * @property {Array<object>} fsLamps              - All ten footswitch lamp surface values.
+ * @property {object}        recordButton         - FS1 button surface value.
+ * @property {object}        playButton           - FS2 button surface value.
+ * @property {object}        stopButton           - FS3 button surface value.
+ * @property {object}        recordLamp           - FS1 lamp surface value.
+ * @property {object}        playLamp             - FS2 lamp surface value.
+ * @property {object}        stopLamp             - FS3 lamp surface value.
+ * @property {object}        cycleLamp            - FS4 lamp surface value.
+ * @property {object}        metronomeLamp        - FS9 lamp surface value.
+ * @property {object}        stopPulse            - Custom variable: momentary stop pulse trigger.
+ * @property {object}        recordStopGate       - Custom variable: record-stop gate signal.
+ * @property {object}        playStatus           - Custom variable: mirrored play host value.
+ * @property {object}        stopStatus           - Custom variable: mirrored stop host value.
+ * @property {object}        cycleStatus          - Custom variable: mirrored cycle host value.
+ * @property {object}        metronomeStatus      - Custom variable: mirrored metronome host value.
+ */
+
+/**
+ * Runtime state helper API used by binding callbacks.
+ * @typedef {object} StateApi
+ * @property {function(MidiRemoteActiveDevice, string, boolean): boolean} getBooleanState
+ * @property {function(MidiRemoteActiveDevice, string, boolean): void} setBooleanState
+ * @property {function(MidiRemoteActiveDevice, string, number): number} getIntegerState
+ * @property {function(MidiRemoteActiveDevice, string, number): void} setIntegerState
+ * @property {function(MidiRemoteActiveDevice, object, DriverConfig): void} emitStopPulse
+ */
+
+/**
+ * Driver configuration object used by surface and binding construction.
+ * @typedef {object} DriverConfig
+ * @property {{
+ *   minTapIntervalMs: number,
+ *   maxTapIntervalMs: number,
+ *   defaultBpm: number,
+ *   historyWeight: number
+ * }} tapTempo
+ * @property {{
+ *   wasRecordingKey: string,
+ *   lastStopPulseMsKey: string,
+ *   lastTapMsKey: string,
+ *   tapTempoBpmKey: string,
+ *   stopPulseDebounceMs: number
+ * }} state
+ */
+
+// ─────────────────────────────────────────────────────────────────────────────
 // LAYOUT SELECTION  –  change to 'compact' for a narrower button layout
 //                      ('wide' = default, larger buttons)
 // ─────────────────────────────────────────────────────────────────────────────
@@ -96,7 +179,9 @@ var config = {
 		minTapIntervalMs: 250,
 		maxTapIntervalMs: 2000,
 		defaultBpm: 120,
-		smoothing: 0.35
+		// Weight applied to the previous BPM value.
+		// Lower = more reactive (new tap dominates), higher = more stable (history dominates).
+		historyWeight: 0.35
 	},
 	state: {
 		wasRecordingKey: 'wasRecording',
@@ -108,7 +193,7 @@ var config = {
 }
 
 /**
- * @param {*} activeDevice
+ * @param {MidiRemoteActiveDevice} activeDevice
  * @param {string} key
  * @param {boolean} fallback
  * @returns {boolean}
@@ -121,7 +206,7 @@ function getBooleanState(activeDevice, key, fallback) {
 }
 
 /**
- * @param {*} activeDevice
+ * @param {MidiRemoteActiveDevice} activeDevice
  * @param {string} key
  * @param {boolean} value
  */
@@ -130,7 +215,7 @@ function setBooleanState(activeDevice, key, value) {
 }
 
 /**
- * @param {*} activeDevice
+ * @param {MidiRemoteActiveDevice} activeDevice
  * @param {string} key
  * @param {number} fallback
  * @returns {number}
@@ -142,7 +227,7 @@ function getIntegerState(activeDevice, key, fallback) {
 }
 
 /**
- * @param {*} activeDevice
+ * @param {MidiRemoteActiveDevice} activeDevice
  * @param {string} key
  * @param {number} value
  */
@@ -151,9 +236,9 @@ function setIntegerState(activeDevice, key, value) {
 }
 
 /**
- * @param {*} activeDevice
- * @param {*} stopPulse
- * @param {*} localConfig
+ * @param {MidiRemoteActiveDevice} activeDevice
+ * @param {SurfaceCustomValueVariable} stopPulse
+ * @param {object} localConfig
  */
 function emitStopPulse(activeDevice, stopPulse, localConfig) {
 	var nowMs = Date.now()
@@ -176,7 +261,8 @@ var stateApi = {
 }
 
 /**
- * @param {*} surfaceConfig
+ * @param {SurfaceConfig} surfaceConfig
+ * @returns {Array<{x: number, y: number}>}
  */
 function makeFootswitchPositions(surfaceConfig) {
 	return [
@@ -194,8 +280,8 @@ function makeFootswitchPositions(surfaceConfig) {
 }
 
 /**
- * @param {*} surfaceConfig
- * @returns {*}
+ * @param {SurfaceConfig} surfaceConfig
+ * @returns {SurfaceConfig}
  */
 function resolveSurfaceConfig(surfaceConfig) {
 	var layoutMap = surfaceConfig.layouts || {}
@@ -236,7 +322,7 @@ function normalizeRoleLabel(roleName, maxLength) {
 }
 
 /**
- * @param {*} localConfig
+ * @param {object} localConfig
  * @param {number} roleIndex
  * @returns {string}
  */
@@ -249,10 +335,11 @@ function makeFootswitchLabel(localConfig, roleIndex) {
 }
 
 /**
- * @param {*} surface
- * @param {*} page
- * @param {*} midiInput
- * @param {*} localConfig
+ * @param {MidiRemoteSurface} surface
+ * @param {MappingPage} page
+ * @param {MidiRemotePort} midiInput
+ * @param {object} localConfig
+ * @returns {SurfaceElements}
  */
 function createSurface(surface, page, midiInput, localConfig) {
 	var surfaceConfig = resolveSurfaceConfig(localConfig.surface)
@@ -331,10 +418,10 @@ function createSurface(surface, page, midiInput, localConfig) {
 }
 
 /**
- * @param {*} page
- * @param {*} ui
- * @param {*} localStateApi
- * @param {*} localConfig
+ * @param {MappingPage} page
+ * @param {SurfaceElements} ui
+ * @param {StateApi} localStateApi
+ * @param {DriverConfig} localConfig
  */
 function createBindings(page, ui, localStateApi, localConfig) {
 	var recordBinding = page.makeValueBinding(ui.recordButton.mSurfaceValue, page.mHostAccess.mTransport.mValue.mRecord)
@@ -362,46 +449,42 @@ function createBindings(page, ui, localStateApi, localConfig) {
 	var metronomeStatusBinding = page.makeValueBinding(ui.metronomeStatus, page.mHostAccess.mTransport.mValue.mMetronomeActive).setTypeDefault()
 	var activeMappingRef = null
 
-	page.mOnActivate = function () {
-		activeMappingRef = arguments[1]
+	page.mOnActivate = function (_context, mapping) {
+		activeMappingRef = mapping
 	}
 
 	page.mOnDeactivate = function () {
 		activeMappingRef = null
 	}
 
-	playStatusBinding.mOnValueChange = function () {
-		var activeDevice = arguments[0]
-		var currValue = Number(arguments[2])
+	playStatusBinding.mOnValueChange = function (activeDevice, _mapping, currValue) {
+		currValue = Number(currValue)
 		if (!activeDevice || isNaN(currValue)) return
 		ui.playLamp.mSurfaceValue.setProcessValue(activeDevice, currValue)
 		ui.stopLamp.mSurfaceValue.setProcessValue(activeDevice, currValue >= 0.5 ? 0 : 1)
 	}
 
-	stopStatusBinding.mOnValueChange = function () {
-		var activeDevice = arguments[0]
-		var currValue = Number(arguments[2])
-		if (!activeDevice || isNaN(currValue)) return
-		ui.stopLamp.mSurfaceValue.setProcessValue(activeDevice, currValue)
+	// C1: Stop lamp is driven exclusively by the play-state inversion above.
+	// Driving it directly from mStop would cause the lamp to go dark when stop is pressed
+	// while already stopped (mStop fires 1→0 but mStart stays 0, so no playStatus callback fires).
+	stopStatusBinding.mOnValueChange = function (_activeDevice, _mapping, _currValue) {
+		// intentionally left blank — stop lamp state is managed by playStatusBinding.mOnValueChange
 	}
 
-	cycleStatusBinding.mOnValueChange = function () {
-		var activeDevice = arguments[0]
-		var currValue = Number(arguments[2])
+	cycleStatusBinding.mOnValueChange = function (activeDevice, _mapping, currValue) {
+		currValue = Number(currValue)
 		if (!activeDevice || isNaN(currValue)) return
 		ui.cycleLamp.mSurfaceValue.setProcessValue(activeDevice, currValue)
 	}
 
-	metronomeStatusBinding.mOnValueChange = function () {
-		var activeDevice = arguments[0]
-		var currValue = Number(arguments[2])
+	metronomeStatusBinding.mOnValueChange = function (activeDevice, _mapping, currValue) {
+		currValue = Number(currValue)
 		if (!activeDevice || isNaN(currValue)) return
 		ui.metronomeLamp.mSurfaceValue.setProcessValue(activeDevice, currValue)
 	}
 
-	recordBinding.mOnValueChange = function () {
-		var activeDevice = arguments[0]
-		var currValue = Number(arguments[2])
+	recordBinding.mOnValueChange = function (activeDevice, _mapping, currValue) {
+		currValue = Number(currValue)
 		if (!activeDevice || isNaN(currValue)) return
 
 		ui.recordLamp.mSurfaceValue.setProcessValue(activeDevice, currValue)
@@ -415,18 +498,16 @@ function createBindings(page, ui, localStateApi, localConfig) {
 		localStateApi.setBooleanState(activeDevice, localConfig.state.wasRecordingKey, isRecordingNow)
 	}
 
-	ui.playButton.mSurfaceValue.mOnProcessValueChange = function () {
-		var activeDevice = arguments[0]
-		var currValue = Number(arguments[1])
+	ui.playButton.mSurfaceValue.mOnProcessValueChange = function (activeDevice, currValue) {
+		currValue = Number(currValue)
 		if (!activeDevice || isNaN(currValue)) return
 		if (currValue < 0.5) {
 			localStateApi.emitStopPulse(activeDevice, ui.stopPulse, localConfig)
 		}
 	}
 
-	ui.stopButton.mSurfaceValue.mOnProcessValueChange = function () {
-		var activeDevice = arguments[0]
-		var currValue = Number(arguments[1])
+	ui.stopButton.mSurfaceValue.mOnProcessValueChange = function (activeDevice, currValue) {
+		currValue = Number(currValue)
 		if (!activeDevice || isNaN(currValue)) return
 		if (currValue >= 0.5) {
 			localStateApi.emitStopPulse(activeDevice, ui.stopPulse, localConfig)
@@ -436,30 +517,26 @@ function createBindings(page, ui, localStateApi, localConfig) {
 		}
 	}
 
-	ui.fsButtons[5].mSurfaceValue.mOnProcessValueChange = function () {
-		var activeDevice = arguments[0]
-		var currValue = Number(arguments[1])
+	ui.fsButtons[5].mSurfaceValue.mOnProcessValueChange = function (activeDevice, currValue) {
+		currValue = Number(currValue)
 		if (!activeDevice || isNaN(currValue)) return
 		ui.fsLamps[5].mSurfaceValue.setProcessValue(activeDevice, currValue >= 0.5 ? 1 : 0)
 	}
 
-	ui.fsButtons[6].mSurfaceValue.mOnProcessValueChange = function () {
-		var activeDevice = arguments[0]
-		var currValue = Number(arguments[1])
+	ui.fsButtons[6].mSurfaceValue.mOnProcessValueChange = function (activeDevice, currValue) {
+		currValue = Number(currValue)
 		if (!activeDevice || isNaN(currValue)) return
 		ui.fsLamps[6].mSurfaceValue.setProcessValue(activeDevice, currValue >= 0.5 ? 1 : 0)
 	}
 
-	ui.fsButtons[7].mSurfaceValue.mOnProcessValueChange = function () {
-		var activeDevice = arguments[0]
-		var currValue = Number(arguments[1])
+	ui.fsButtons[7].mSurfaceValue.mOnProcessValueChange = function (activeDevice, currValue) {
+		currValue = Number(currValue)
 		if (!activeDevice || isNaN(currValue)) return
 		ui.fsLamps[7].mSurfaceValue.setProcessValue(activeDevice, currValue >= 0.5 ? 1 : 0)
 	}
 
-	ui.fsButtons[4].mSurfaceValue.mOnProcessValueChange = function () {
-		var activeDevice = arguments[0]
-		var currValue = Number(arguments[1])
+	ui.fsButtons[4].mSurfaceValue.mOnProcessValueChange = function (activeDevice, currValue) {
+		currValue = Number(currValue)
 		if (!activeDevice || isNaN(currValue)) return
 		ui.fsLamps[4].mSurfaceValue.setProcessValue(activeDevice, currValue >= 0.5 ? 1 : 0)
 		if (currValue < 0.5 || !activeMappingRef) return
@@ -472,7 +549,8 @@ function createBindings(page, ui, localStateApi, localConfig) {
 		if (intervalMs >= tapConfig.minTapIntervalMs && intervalMs <= tapConfig.maxTapIntervalMs) {
 			var measuredBpm = 60000 / intervalMs
 			var previousBpm = localStateApi.getIntegerState(activeDevice, localConfig.state.tapTempoBpmKey, tapConfig.defaultBpm)
-			var smoothedBpm = Math.round((previousBpm * tapConfig.smoothing) + (measuredBpm * (1 - tapConfig.smoothing)))
+			// historyWeight blends previous BPM into the new tap measurement for smooth tempo changes
+			var smoothedBpm = Math.round((previousBpm * tapConfig.historyWeight) + (measuredBpm * (1 - tapConfig.historyWeight)))
 			page.mHostAccess.mTransport.mTimeDisplay.setTempoBPM(activeMappingRef, smoothedBpm)
 			localStateApi.setIntegerState(activeDevice, localConfig.state.tapTempoBpmKey, smoothedBpm)
 		}
@@ -482,18 +560,18 @@ function createBindings(page, ui, localStateApi, localConfig) {
 }
 
 /**
- * @param {*} localConfig
- * @returns {*}
+ * @param {object} localConfig
+ * @returns {object}
  */
 function cloneConfig(localConfig) {
 	return JSON.parse(JSON.stringify(localConfig))
 }
 
 /**
- * @param {*} baseConfig
+ * @param {object} baseConfig
  * @param {string} deviceName
  * @param {string} layoutPreset
- * @returns {*}
+ * @returns {object}
  */
 function makeVariantConfig(baseConfig, deviceName, layoutPreset) {
 	var variantConfig = cloneConfig(baseConfig)
@@ -503,7 +581,7 @@ function makeVariantConfig(baseConfig, deviceName, layoutPreset) {
 }
 
 /**
- * @param {*} localConfig
+ * @param {object} localConfig
  */
 function registerDevice(localConfig) {
 	var deviceDriver = midiremote_api.makeDeviceDriver(
@@ -524,8 +602,8 @@ function registerDevice(localConfig) {
 
 	var surface = deviceDriver.mSurface
 	var page = deviceDriver.mMapping.makePage(localConfig.page.recording)
-	var ui = createSurface(surface, page, midiInput, localConfig)
-	createBindings(page, ui, stateApi, localConfig)
+	var surfaceElements = createSurface(surface, page, midiInput, localConfig)
+	createBindings(page, surfaceElements, stateApi, localConfig)
 }
 
 // Register the selected layout variant (change LAYOUT at the top of this file to switch).

@@ -21,6 +21,7 @@ The script is organized around three key layers:
 3. Host Bindings and Runtime Logic
 - `createBindings()` connects surface values to Cubase transport and commands
 - Debounced stop pulse handling
+- FS3 stop behavior intentionally combines direct host stop binding with a debounced stop pulse for reinforced live-stop reliability
 - Tap tempo handler on FS5
 - Metronome toggle on FS9
 

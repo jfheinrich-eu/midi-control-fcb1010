@@ -82,8 +82,8 @@ VAR $off = 0
  * FS3  -> Note 40  -> Stop
  * FS4  -> Note 41  -> Cycle
  * FS5  -> Note 43  -> Tap Tempo
- * FS6  -> Note 45  -> Previous Marker
- * FS7  -> Note 47  -> Next Marker
+ * FS6  -> Note 45  -> Rewind
+ * FS7  -> Note 47  -> Forward
  * FS8  -> Note 48  -> Undo
  * FS9  -> Note 50  -> Click
  * FS10 -> Note 52  -> User Function

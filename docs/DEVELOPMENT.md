@@ -35,3 +35,24 @@ This project provides a Cubase MIDI Remote script for the Behringer FCB1010 (UnO
 - Follow Steinberg MIDI Remote API conventions.
 - Prefer focused changes and avoid unrelated refactors.
 - Update docs in `docs/` for every behavior or architecture change.
+
+## Documentation Consistency Checklist
+
+- For each mapping or behavior change, cross-check FS role/note assignments across:
+	- `Behringer_BehringerFCB1010UnO2.js`
+	- `README.md`
+	- `UnO2_Cubase_OBS_Setup.txt`
+- Ensure transport-role names (for example Rewind/Forward, Tap/Click) are identical in code and docs.
+
+## Automation Consistency
+
+When workflow or label behavior changes, verify consistency across:
+
+- `.github/workflows/label-sync.yml`
+- `.github/workflows/pr-auto-label.yml`
+- `.github/labels.yml`
+
+Checklist:
+
+- Every label referenced in workflow logic is defined in `.github/labels.yml`.
+- Workflow trigger and permission updates are reflected in documentation entries under `docs/`.

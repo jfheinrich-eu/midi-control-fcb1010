@@ -35,6 +35,7 @@ Implemented behavior:
 - Footswitch 2 press: Start Play
 - Footswitch 2 release: additionally trigger one Stop pulse
 - Footswitch 3 press: Stop Play + force Record Off + auto-release button state
+	- FS3 intentionally uses a reinforced stop path (direct stop binding plus a debounced stop pulse) for live-safety host behavior.
 - Footswitch 4 toggle: Cycle On/Off
 - Footswitch 5 press: Tap Tempo
 - Footswitch 6 press: Rewind (momentary)
@@ -51,7 +52,7 @@ Implemented surface design:
 Design goals:
 - Deterministic transport behavior
 - No MIDI feedback loop
-- No repeated stop bursts (debounced)
+- No uncontrolled repeated stop bursts (debounced stop pulse path)
 
 ## Meaningful Script Extensions
 Possible next steps to evolve this script into a complete FCB1010 profile:
@@ -168,7 +169,7 @@ The workspace already contains a related UnO2 mapping using this note layout on 
 | 9 | 10 | 50 |
 | 10 | 10 | 52 |
 
-This is not required for the current one-switch script, but it is a sensible base if you want to keep your UnO2 configuration aligned with a future complete FCB1010 Cubase profile.
+This is not required for the current transport script, but it is a sensible base if you want to keep your UnO2 configuration aligned with a future complete FCB1010 Cubase profile.
 
 ## Suggested Footswitch Layout
 The following layout is meant to stay easy to understand for a regular guitarist. It avoids abstract technical naming and follows typical live or recording priorities.

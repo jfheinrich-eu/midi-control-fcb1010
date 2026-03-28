@@ -149,7 +149,7 @@ Section 6 (Discovery Of Unlisted Files) expanded with explicit named files to al
 
 ## Validation Performed
 
-- Verified no `var` declarations remain in `Behringer_BehringerFCB1010UnO2.js`.
+- Verified `var` declarations remain intentionally in `Behringer_BehringerFCB1010UnO2.js` for ES5 parser compatibility in Cubase MIDI Remote.
 - Verified `arguments[n]` patterns are fully replaced with named parameters.
 - Verified `stopStatusBinding.mOnValueChange` contains no `setProcessValue` call.
 - Verified `tapConfig.historyWeight` reference is present in `createBindings`.

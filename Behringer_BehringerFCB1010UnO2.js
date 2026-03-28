@@ -74,6 +74,34 @@ var midiremote_api = require('midiremote_api_v1')
  * @property {object}        metronomeStatus      - Custom variable: mirrored metronome host value.
  */
 
+/**
+ * Runtime state helper API used by binding callbacks.
+ * @typedef {object} StateApi
+ * @property {function(MidiRemoteActiveDevice, string, boolean): boolean} getBooleanState
+ * @property {function(MidiRemoteActiveDevice, string, boolean): void} setBooleanState
+ * @property {function(MidiRemoteActiveDevice, string, number): number} getIntegerState
+ * @property {function(MidiRemoteActiveDevice, string, number): void} setIntegerState
+ * @property {function(MidiRemoteActiveDevice, object, DriverConfig): void} emitStopPulse
+ */
+
+/**
+ * Driver configuration object used by surface and binding construction.
+ * @typedef {object} DriverConfig
+ * @property {{
+ *   minTapIntervalMs: number,
+ *   maxTapIntervalMs: number,
+ *   defaultBpm: number,
+ *   historyWeight: number
+ * }} tapTempo
+ * @property {{
+ *   wasRecordingKey: string,
+ *   lastStopPulseMsKey: string,
+ *   lastTapMsKey: string,
+ *   tapTempoBpmKey: string,
+ *   stopPulseDebounceMs: number
+ * }} state
+ */
+
 // ─────────────────────────────────────────────────────────────────────────────
 // LAYOUT SELECTION  –  change to 'compact' for a narrower button layout
 //                      ('wide' = default, larger buttons)
@@ -390,10 +418,10 @@ function createSurface(surface, page, midiInput, localConfig) {
 }
 
 /**
- * @param {*} page
- * @param {*} ui
- * @param {*} localStateApi
- * @param {*} localConfig
+ * @param {MappingPage} page
+ * @param {SurfaceElements} ui
+ * @param {StateApi} localStateApi
+ * @param {DriverConfig} localConfig
  */
 function createBindings(page, ui, localStateApi, localConfig) {
 	var recordBinding = page.makeValueBinding(ui.recordButton.mSurfaceValue, page.mHostAccess.mTransport.mValue.mRecord)

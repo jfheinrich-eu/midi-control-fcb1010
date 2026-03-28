@@ -8,12 +8,6 @@ The format is based on Keep a Changelog, and this project aims to follow Semanti
 
 ## [0.2.0] - 2026-03-25 (revised)
 
-### Added
-- Repository governance files (`CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `SUPPORT.md`).
-- GitHub collaboration templates (issue templates and pull request template).
-- Repository hygiene files (`.editorconfig`, `.gitattributes`, `.gitignore`, `CODEOWNERS`).
-- MIT `LICENSE`.
-
 ### Changed
 - README aligned with repository identity and GitHub best-practice navigation.
 - Fixed competing stop-lamp callbacks (C1): stop lamp is now driven exclusively by play-state inversion.
@@ -28,6 +22,10 @@ The format is based on Keep a Changelog, and this project aims to follow Semanti
 
 ### Added
 - Initial public repository baseline for `jfheinrich-eu/midi-control-fcb1010`.
+- Repository governance files (`CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `SUPPORT.md`).
+- GitHub collaboration templates (issue templates and pull request template).
+- Repository hygiene files (`.editorconfig`, `.gitattributes`, `.gitignore`, `CODEOWNERS`).
+- MIT `LICENSE`.
 
 ### Notes
 - Historical detailed engineering logs remain in `docs/` with date-based entries.

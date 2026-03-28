@@ -2,8 +2,8 @@
 
 ## Summary
 
-Applied all findings from the automated project review report `2026-03-25_18:42:26-review.md`.
-Changes span the driver script, documentation, GitHub configuration, and workflow files.
+Applied all findings from the automated project review report `2026-03-25_18-42-26-review.md`
+(local non-versioned file — not tracked in the repository).
 
 ## Files Changed
 
@@ -124,9 +124,9 @@ was updated to `tapConfig.historyWeight`. An inline comment explains the blendin
 - `.github/workflows/label-sync.yml`
 
 All `uses:` steps were pinned to full commit SHAs with version comments:
-- `actions/github-script@v7` → `@60a0d83039f74b59c328d781e62d1b2160834302 # v7.0.1`
+- `actions/github-script@v7` → `@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8.0.0`
 - `actions/checkout@v4` → `@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2`
-- `EndBug/label-sync@v2` → `@21462b8c13b84ad5bf7b61f3d87f2d91e0516d7 # v2.3.0`
+- `EndBug/label-sync@v2` → `@52074158190acb45f3077f9099fea818aa43f97a # v2.3.3`
 
 ---
 

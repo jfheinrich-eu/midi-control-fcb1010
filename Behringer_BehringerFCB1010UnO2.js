@@ -20,6 +20,61 @@
 var midiremote_api = require('midiremote_api_v1')
 
 // ─────────────────────────────────────────────────────────────────────────────
+// TYPE DEFINITIONS  –  JSDoc stubs for Steinberg MIDI Remote API v1 objects
+//                      and project-specific composite types.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/**
+ * Active device instance provided by the Steinberg MIDI Remote API v1.
+ * Exposes `getState(key)` / `setState(key, value)` for per-device persistence.
+ * @typedef {object} MidiRemoteActiveDevice
+ */
+
+/**
+ * Surface object returned by `midiremote_api.makeDeviceDriver().mSurface`.
+ * Used to create buttons, lamps, label fields, and custom value variables.
+ * @typedef {object} MidiRemoteSurface
+ */
+
+/**
+ * Mapping page returned by `driver.mMapping.makePage(name)`.
+ * Binds surface values to host parameters and manages label fields.
+ * @typedef {object} MappingPage
+ */
+
+/**
+ * MIDI port object used for note-binding surface elements.
+ * @typedef {object} MidiRemotePort
+ */
+
+/**
+ * Resolved surface layout config, derived from `config.surface` with the
+ * active layout preset merged in. Plain key/value object.
+ * @typedef {object} SurfaceConfig
+ */
+
+/**
+ * All interactive surface elements created by `createSurface`.
+ * @typedef {object} SurfaceElements
+ * @property {Array<object>} fsButtons            - All ten footswitch button surface values.
+ * @property {Array<object>} fsLamps              - All ten footswitch lamp surface values.
+ * @property {object}        recordButton         - FS1 button surface value.
+ * @property {object}        playButton           - FS2 button surface value.
+ * @property {object}        stopButton           - FS3 button surface value.
+ * @property {object}        recordLamp           - FS1 lamp surface value.
+ * @property {object}        playLamp             - FS2 lamp surface value.
+ * @property {object}        stopLamp             - FS3 lamp surface value.
+ * @property {object}        cycleLamp            - FS4 lamp surface value.
+ * @property {object}        metronomeLamp        - FS9 lamp surface value.
+ * @property {object}        stopPulse            - Custom variable: momentary stop pulse trigger.
+ * @property {object}        recordStopGate       - Custom variable: record-stop gate signal.
+ * @property {object}        playStatus           - Custom variable: mirrored play host value.
+ * @property {object}        stopStatus           - Custom variable: mirrored stop host value.
+ * @property {object}        cycleStatus          - Custom variable: mirrored cycle host value.
+ * @property {object}        metronomeStatus      - Custom variable: mirrored metronome host value.
+ */
+
+// ─────────────────────────────────────────────────────────────────────────────
 // LAYOUT SELECTION  –  change to 'compact' for a narrower button layout
 //                      ('wide' = default, larger buttons)
 // ─────────────────────────────────────────────────────────────────────────────

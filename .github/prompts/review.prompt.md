@@ -77,9 +77,9 @@ Perform a thorough, critical review of the entire project. Check every area list
   - All files under `.github/workflows/` — verify presence, structure, and SHA-pinning of all `uses:` steps.
   - `.github/labels.yml` — verify all labels referenced in workflows are defined here.
 - For each relevant file found, report:
-	- why the file is relevant,
-	- whether it should be integrated into an existing review section,
-	- a concrete suggestion for where and how to integrate it.
+  - why the file is relevant,
+  - whether it should be integrated into an existing review section,
+  - a concrete suggestion for where and how to integrate it.
 
 ---
 
@@ -105,7 +105,7 @@ For each finding:
 
 - Do not only display the review results in chat.
 - Also create a markdown report file in the repository root named with this timestamp pattern:
-	- `YYYY-MM-DD_HH:MM:SS-review.md`
-	- example: `2026-03-25_12:34:53-review.md`
+  - `YYYY-MM-DD_HH-MM-SS-review.md`
+  - example: `2026-03-25_12-34-53-review.md`
 - The report file must contain the same findings shown in chat.
 - All links in the report file must be relative repository links and must resolve correctly.

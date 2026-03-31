@@ -39,9 +39,9 @@ This project provides a Cubase MIDI Remote script for the Behringer FCB1010 (UnO
 ## Documentation Consistency Checklist
 
 - For each mapping or behavior change, cross-check FS role/note assignments across:
-	- `Behringer_BehringerFCB1010UnO2.js`
-	- `README.md`
-	- `UnO2_Cubase_OBS_Setup.txt`
+  - `Behringer_BehringerFCB1010UnO2.js`
+  - `README.md`
+  - `UnO2_Cubase_OBS_Setup.txt`
 - Ensure transport-role names (for example Rewind/Forward, Tap/Click) are identical in code and docs.
 
 ## Automation Consistency

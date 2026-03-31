@@ -35,7 +35,7 @@ Implemented behavior:
 - Footswitch 2 press: Start Play
 - Footswitch 2 release: additionally trigger one Stop pulse
 - Footswitch 3 press: Stop Play + force Record Off + auto-release button state
-	- FS3 intentionally uses a reinforced stop path (direct stop binding plus a debounced stop pulse) for live-safety host behavior.
+  - FS3 intentionally uses a reinforced stop path (direct stop binding plus a debounced stop pulse) for live-safety host behavior.
 - Footswitch 4 toggle: Cycle On/Off
 - Footswitch 5 press: Tap Tempo
 - Footswitch 6 press: Rewind (momentary)

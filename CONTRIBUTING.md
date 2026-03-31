@@ -23,8 +23,13 @@ Thanks for contributing to `jfheinrich-eu/midi-control-fcb1010`.
    - FS1 press/release record flow
    - FS2 play/release stop pulse
    - FS3 stop and record-off behavior
+   - FS4 cycle toggle
    - FS5 tap tempo
+   - FS6 rewind lamp feedback
+   - FS7 forward lamp feedback
+   - FS8 undo lamp feedback
    - FS9 click toggle
+   - UI row order matches hardware orientation
 4. Confirm no regressions in transport logic and lamp feedback.
 
 ## Pull Requests

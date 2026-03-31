@@ -13,7 +13,11 @@ Describe what changed and why.
 
 - [ ] Reloaded scripts in Cubase
 - [ ] Verified core transport behavior (FS1/FS2/FS3)
+- [ ] Verified FS4 cycle toggle behavior
 - [ ] Verified FS5 tap tempo behavior
+- [ ] Verified FS6 rewind behavior
+- [ ] Verified FS7 forward behavior
+- [ ] Verified FS8 undo behavior
 - [ ] Verified FS9 click toggle behavior
 - [ ] Checked no regressions in lamp feedback
 

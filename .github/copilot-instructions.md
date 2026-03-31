@@ -68,3 +68,19 @@ See [CONTRIBUTING.md](../CONTRIBUTING.md) for the full contribution workflow.
 
 Use the `/review` prompt to perform a full project review.  
 See [.github/prompts/review.prompt.md](prompts/review.prompt.md).
+
+---
+
+## Commit Command
+
+Use the `/commit` prompt to create well-structured conventional commits for all pending changes.
+
+The workflow:
+1. Discovers modified tracked files and untracked files.
+2. Asks which untracked files should be staged.
+3. Groups all changes into logical, self-contained commit groups.
+4. Proposes a [Conventional Commit](https://www.conventionalcommits.org/) message for each group.
+5. Presents the full plan for user approval before executing anything.
+6. Executes each commit in order after approval.
+
+See [.github/prompts/commit.prompt.md](prompts/commit.prompt.md).

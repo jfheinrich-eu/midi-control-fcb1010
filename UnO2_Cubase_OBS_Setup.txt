@@ -82,8 +82,8 @@ VAR $off = 0
  * FS3  -> Note 40  -> Stop
  * FS4  -> Note 41  -> Cycle
  * FS5  -> Note 43  -> Tap Tempo
- * FS6  -> Note 45  -> Previous Marker
- * FS7  -> Note 47  -> Next Marker
+ * FS6  -> Note 45  -> Rewind
+ * FS7  -> Note 47  -> Forward
  * FS8  -> Note 48  -> Undo
  * FS9  -> Note 50  -> Click
  * FS10 -> Note 52  -> User Function
@@ -147,11 +147,11 @@ EFFECT_OFF CUBASE_CYCLE = {
 }
 
 EFFECT_ON CUBASE_CLICK = {
-   SendMidi CUBASE_MIDI_CHANNEL NoteOn 43 $on
+   SendMidi CUBASE_MIDI_CHANNEL NoteOn 50 $on
 }
 
 EFFECT_OFF CUBASE_CLICK = {
-   SendMidi CUBASE_MIDI_CHANNEL NoteOff 43 $off
+   SendMidi CUBASE_MIDI_CHANNEL NoteOff 50 $off
 }
 
 EFFECT_ON CUBASE_REWIND = {
@@ -179,9 +179,9 @@ EFFECT_OFF CUBASE_UNDO = {
 }
 
 EFFECT_ON CUBASE_TAP = {
-   SendMidi CUBASE_MIDI_CHANNEL NoteOn 50 $on
+   SendMidi CUBASE_MIDI_CHANNEL NoteOn 43 $on
 }
 
 EFFECT_OFF CUBASE_TAP = {
-   SendMidi CUBASE_MIDI_CHANNEL NoteOff 50 $off
+   SendMidi CUBASE_MIDI_CHANNEL NoteOff 43 $off
 }

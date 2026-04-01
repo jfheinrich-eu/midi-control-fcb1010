@@ -19,6 +19,56 @@
 
 var midiremote_api = require('midiremote_api_v1')
 
+var DECIMAL_RADIX = 10
+var MIDI_CHANNEL_DRUMS_ZERO_BASED = 9
+var TAP_TEMPO_MS_PER_MINUTE = 60000
+
+var STATE_BOOLEAN_STRINGS = {
+	trueValue: '1',
+	falseValue: '0'
+}
+
+var VALUE_STATE = {
+	off: 0,
+	on: 1,
+	pressThreshold: 0.5,
+	max: 1
+}
+
+var FOOTSWITCH_GRID = {
+	columnCount: 5,
+	rowYPropertyOrder: ['footswitchRowBottomY', 'footswitchRowTopY']
+}
+
+var FOOTSWITCH_INDEX = {
+	record: 0,
+	play: 1,
+	stop: 2,
+	cycle: 3,
+	tap: 4,
+	rewind: 5,
+	forward: 6,
+	undo: 7,
+	metronome: 8
+}
+
+var FOOTSWITCH_NOTES_BY_ROW = {
+	bottom: [36, 38, 40, 41, 43],
+	top: [45, 47, 48, 50, 52]
+}
+
+var SURFACE_TEXT_LAYOUT = {
+	lampYOffset: 0.5,
+	tapLabelXOffset: 0.55,
+	tapLabelYOffset: 0.9,
+	tapLabelWidthReduction: 1.1,
+	tapLabelHeight: 0.7,
+	pedalLabelXOffset: 2.6,
+	pedalLabelYOffset: 0.15,
+	pedalLabelWidth: 5,
+	pedalLabelHeight: 1
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // LAYOUT SELECTION  –  change to 'compact' for a narrower button layout
 //                      ('wide' = default, larger buttons)
@@ -74,8 +124,9 @@ var config = {
 		}
 	},
 	midi: {
-		channelZeroBased: 9,
-		footswitchNotes: [36, 38, 40, 41, 43, 45, 47, 48, 50, 52]
+		channelZeroBased: MIDI_CHANNEL_DRUMS_ZERO_BASED,
+		// Keep note order stable: indices 0..4 map to bottom row, 5..9 map to top row.
+		footswitchNotes: FOOTSWITCH_NOTES_BY_ROW.bottom.concat(FOOTSWITCH_NOTES_BY_ROW.top)
 	},
 	footswitch: {
 		maxRoleLabelLength: 6,
@@ -115,8 +166,8 @@ var config = {
  */
 function getBooleanState(activeDevice, key, fallback) {
 	var raw = activeDevice.getState(key)
-	if (raw === '1' || raw === 'true') return true
-	if (raw === '0' || raw === 'false') return false
+	if (raw === STATE_BOOLEAN_STRINGS.trueValue || raw === 'true') return true
+	if (raw === STATE_BOOLEAN_STRINGS.falseValue || raw === 'false') return false
 	return fallback
 }
 
@@ -126,7 +177,7 @@ function getBooleanState(activeDevice, key, fallback) {
  * @param {boolean} value
  */
 function setBooleanState(activeDevice, key, value) {
-	activeDevice.setState(key, value ? '1' : '0')
+	activeDevice.setState(key, value ? STATE_BOOLEAN_STRINGS.trueValue : STATE_BOOLEAN_STRINGS.falseValue)
 }
 
 /**
@@ -137,7 +188,7 @@ function setBooleanState(activeDevice, key, value) {
  */
 function getIntegerState(activeDevice, key, fallback) {
 	var raw = activeDevice.getState(key)
-	var parsed = parseInt(raw, 10)
+	var parsed = parseInt(raw, DECIMAL_RADIX)
 	return isNaN(parsed) ? fallback : parsed
 }
 
@@ -158,11 +209,11 @@ function setIntegerState(activeDevice, key, value) {
 function emitStopPulse(activeDevice, stopPulse, localConfig) {
 	var nowMs = Date.now()
 	var stateConfig = localConfig.state
-	var lastStopPulseMs = getIntegerState(activeDevice, stateConfig.lastStopPulseMsKey, 0)
+	var lastStopPulseMs = getIntegerState(activeDevice, stateConfig.lastStopPulseMsKey, VALUE_STATE.off)
 
 	if (nowMs - lastStopPulseMs >= stateConfig.stopPulseDebounceMs) {
-		stopPulse.setProcessValue(activeDevice, 1)
-		stopPulse.setProcessValue(activeDevice, 0)
+		stopPulse.setProcessValue(activeDevice, VALUE_STATE.on)
+		stopPulse.setProcessValue(activeDevice, VALUE_STATE.off)
 		setIntegerState(activeDevice, stateConfig.lastStopPulseMsKey, nowMs)
 	}
 }
@@ -179,18 +230,22 @@ var stateApi = {
  * @param {*} surfaceConfig
  */
 function makeFootswitchPositions(surfaceConfig) {
-	return [
-		{ x: surfaceConfig.footswitchXStart + surfaceConfig.footswitchXStep * 0, y: surfaceConfig.footswitchRowBottomY },
-		{ x: surfaceConfig.footswitchXStart + surfaceConfig.footswitchXStep * 1, y: surfaceConfig.footswitchRowBottomY },
-		{ x: surfaceConfig.footswitchXStart + surfaceConfig.footswitchXStep * 2, y: surfaceConfig.footswitchRowBottomY },
-		{ x: surfaceConfig.footswitchXStart + surfaceConfig.footswitchXStep * 3, y: surfaceConfig.footswitchRowBottomY },
-		{ x: surfaceConfig.footswitchXStart + surfaceConfig.footswitchXStep * 4, y: surfaceConfig.footswitchRowBottomY },
-		{ x: surfaceConfig.footswitchXStart + surfaceConfig.footswitchXStep * 0, y: surfaceConfig.footswitchRowTopY },
-		{ x: surfaceConfig.footswitchXStart + surfaceConfig.footswitchXStep * 1, y: surfaceConfig.footswitchRowTopY },
-		{ x: surfaceConfig.footswitchXStart + surfaceConfig.footswitchXStep * 2, y: surfaceConfig.footswitchRowTopY },
-		{ x: surfaceConfig.footswitchXStart + surfaceConfig.footswitchXStep * 3, y: surfaceConfig.footswitchRowTopY },
-		{ x: surfaceConfig.footswitchXStart + surfaceConfig.footswitchXStep * 4, y: surfaceConfig.footswitchRowTopY }
-	]
+	var positions = []
+
+	for (var rowIndex = 0; rowIndex < FOOTSWITCH_GRID.rowYPropertyOrder.length; ++rowIndex) {
+		var rowYProperty = FOOTSWITCH_GRID.rowYPropertyOrder[rowIndex]
+		var rowY = surfaceConfig[rowYProperty]
+
+		for (var columnIndex = 0; columnIndex < FOOTSWITCH_GRID.columnCount; ++columnIndex) {
+			// Column index defines horizontal slot. Multiplying by X step places switches on the 2x5 hardware grid.
+			positions.push({
+				x: surfaceConfig.footswitchXStart + surfaceConfig.footswitchXStep * columnIndex,
+				y: rowY
+			})
+		}
+	}
+
+	return positions
 }
 
 /**
@@ -273,7 +328,7 @@ function createSurface(surface, page, midiInput, localConfig) {
 		var button = surface.makeButton(buttonX, pos.y, surfaceConfig.footswitchWidth, surfaceConfig.footswitchHeight)
 		var lamp = surface.makeLamp(
 			buttonX + (surfaceConfig.footswitchWidth - surfaceConfig.footswitchLedSize) / 2,
-			pos.y - 0.5,
+			pos.y - SURFACE_TEXT_LAYOUT.lampYOffset,
 			surfaceConfig.footswitchLedSize,
 			surfaceConfig.footswitchLedSize
 		).setShapeCircle()
@@ -282,8 +337,13 @@ function createSurface(surface, page, midiInput, localConfig) {
 			.setInputPort(midiInput)
 			.bindToNote(midiConfig.channelZeroBased, midiConfig.footswitchNotes[footswitchIndex])
 
-		if (footswitchIndex === 4) {
-			var innerLabel = surface.makeLabelField(buttonX + 0.55, pos.y + 0.9, surfaceConfig.footswitchWidth - 1.1, 0.7)
+		if (footswitchIndex === FOOTSWITCH_INDEX.tap) {
+			var innerLabel = surface.makeLabelField(
+				buttonX + SURFACE_TEXT_LAYOUT.tapLabelXOffset,
+				pos.y + SURFACE_TEXT_LAYOUT.tapLabelYOffset,
+				surfaceConfig.footswitchWidth - SURFACE_TEXT_LAYOUT.tapLabelWidthReduction,
+				SURFACE_TEXT_LAYOUT.tapLabelHeight
+			)
 			innerLabel.relateTo(button)
 			page.setLabelFieldText(innerLabel, 'TAP')
 			footswitchInnerLabels.push(innerLabel)
@@ -295,8 +355,18 @@ function createSurface(surface, page, midiInput, localConfig) {
 		footswitchLamps.push(lamp)
 	}
 
-	var pedal1Label = surface.makeLabelField(surfaceConfig.leftPedalX + 2.6, surfaceConfig.pedalY + surfaceConfig.pedalHeight + 0.15, 5, 1)
-	var pedal2Label = surface.makeLabelField(surfaceConfig.rightPedalX + 2.6, surfaceConfig.pedalY + surfaceConfig.pedalHeight + 0.15, 5, 1)
+	var pedal1Label = surface.makeLabelField(
+		surfaceConfig.leftPedalX + SURFACE_TEXT_LAYOUT.pedalLabelXOffset,
+		surfaceConfig.pedalY + surfaceConfig.pedalHeight + SURFACE_TEXT_LAYOUT.pedalLabelYOffset,
+		SURFACE_TEXT_LAYOUT.pedalLabelWidth,
+		SURFACE_TEXT_LAYOUT.pedalLabelHeight
+	)
+	var pedal2Label = surface.makeLabelField(
+		surfaceConfig.rightPedalX + SURFACE_TEXT_LAYOUT.pedalLabelXOffset,
+		surfaceConfig.pedalY + surfaceConfig.pedalHeight + SURFACE_TEXT_LAYOUT.pedalLabelYOffset,
+		SURFACE_TEXT_LAYOUT.pedalLabelWidth,
+		SURFACE_TEXT_LAYOUT.pedalLabelHeight
+	)
 	page.setLabelFieldText(pedal1Label, 'Pedal 1')
 	page.setLabelFieldText(pedal2Label, 'Pedal 2')
 
@@ -313,14 +383,14 @@ function createSurface(surface, page, midiInput, localConfig) {
 	return {
 		fsButtons: footswitchButtons,
 		fsLamps: footswitchLamps,
-		recordButton: footswitchButtons[0],
-		playButton: footswitchButtons[1],
-		stopButton: footswitchButtons[2],
-		recordLamp: footswitchLamps[0],
-		playLamp: footswitchLamps[1],
-		stopLamp: footswitchLamps[2],
-		cycleLamp: footswitchLamps[3],
-		metronomeLamp: footswitchLamps[8],
+		recordButton: footswitchButtons[FOOTSWITCH_INDEX.record],
+		playButton: footswitchButtons[FOOTSWITCH_INDEX.play],
+		stopButton: footswitchButtons[FOOTSWITCH_INDEX.stop],
+		recordLamp: footswitchLamps[FOOTSWITCH_INDEX.record],
+		playLamp: footswitchLamps[FOOTSWITCH_INDEX.play],
+		stopLamp: footswitchLamps[FOOTSWITCH_INDEX.stop],
+		cycleLamp: footswitchLamps[FOOTSWITCH_INDEX.cycle],
+		metronomeLamp: footswitchLamps[FOOTSWITCH_INDEX.metronome],
 		stopPulse: surface.makeCustomValueVariable('StopPulse'),
 		recordStopGate: surface.makeCustomValueVariable('RecordStopGate'),
 		playStatus: surface.makeCustomValueVariable('PlayStatus'),
@@ -342,19 +412,19 @@ function createBindings(page, ui, localStateApi, localConfig) {
 
 	page.makeValueBinding(ui.playButton.mSurfaceValue, page.mHostAccess.mTransport.mValue.mStart)
 		.setTypeDefault()
-		.filterByValueRange(0.5, 1)
+		.filterByValueRange(VALUE_STATE.pressThreshold, VALUE_STATE.max)
 
 	page.makeValueBinding(ui.stopButton.mSurfaceValue, page.mHostAccess.mTransport.mValue.mStop)
 		.setTypeDefault()
-		.filterByValueRange(0.5, 1)
+		.filterByValueRange(VALUE_STATE.pressThreshold, VALUE_STATE.max)
 
 	page.makeValueBinding(ui.stopPulse, page.mHostAccess.mTransport.mValue.mStop).setTypeDefault()
 	page.makeValueBinding(ui.recordStopGate, page.mHostAccess.mTransport.mValue.mRecord).setTypeDefault()
-	page.makeValueBinding(ui.fsButtons[3].mSurfaceValue, page.mHostAccess.mTransport.mValue.mCycleActive).setTypeToggle()
-	page.makeValueBinding(ui.fsButtons[8].mSurfaceValue, page.mHostAccess.mTransport.mValue.mMetronomeActive).setTypeToggle()
-	page.makeValueBinding(ui.fsButtons[5].mSurfaceValue, page.mHostAccess.mTransport.mValue.mRewind).setTypeDefault().filterByValueRange(0.5, 1)
-	page.makeValueBinding(ui.fsButtons[6].mSurfaceValue, page.mHostAccess.mTransport.mValue.mForward).setTypeDefault().filterByValueRange(0.5, 1)
-	page.makeCommandBinding(ui.fsButtons[7].mSurfaceValue, 'Edit', 'Undo')
+	page.makeValueBinding(ui.fsButtons[FOOTSWITCH_INDEX.cycle].mSurfaceValue, page.mHostAccess.mTransport.mValue.mCycleActive).setTypeToggle()
+	page.makeValueBinding(ui.fsButtons[FOOTSWITCH_INDEX.metronome].mSurfaceValue, page.mHostAccess.mTransport.mValue.mMetronomeActive).setTypeToggle()
+	page.makeValueBinding(ui.fsButtons[FOOTSWITCH_INDEX.rewind].mSurfaceValue, page.mHostAccess.mTransport.mValue.mRewind).setTypeDefault().filterByValueRange(VALUE_STATE.pressThreshold, VALUE_STATE.max)
+	page.makeValueBinding(ui.fsButtons[FOOTSWITCH_INDEX.forward].mSurfaceValue, page.mHostAccess.mTransport.mValue.mForward).setTypeDefault().filterByValueRange(VALUE_STATE.pressThreshold, VALUE_STATE.max)
+	page.makeCommandBinding(ui.fsButtons[FOOTSWITCH_INDEX.undo].mSurfaceValue, 'Edit', 'Undo')
 
 	var playStatusBinding = page.makeValueBinding(ui.playStatus, page.mHostAccess.mTransport.mValue.mStart).setTypeDefault()
 	var stopStatusBinding = page.makeValueBinding(ui.stopStatus, page.mHostAccess.mTransport.mValue.mStop).setTypeDefault()
@@ -375,7 +445,10 @@ function createBindings(page, ui, localStateApi, localConfig) {
 		var currValue = Number(arguments[2])
 		if (!activeDevice || isNaN(currValue)) return
 		ui.playLamp.mSurfaceValue.setProcessValue(activeDevice, currValue)
-		ui.stopLamp.mSurfaceValue.setProcessValue(activeDevice, currValue >= 0.5 ? 0 : 1)
+		ui.stopLamp.mSurfaceValue.setProcessValue(
+			activeDevice,
+			currValue >= VALUE_STATE.pressThreshold ? VALUE_STATE.off : VALUE_STATE.on
+		)
 	}
 
 	stopStatusBinding.mOnValueChange = function () {
@@ -405,7 +478,7 @@ function createBindings(page, ui, localStateApi, localConfig) {
 		if (!activeDevice || isNaN(currValue)) return
 
 		ui.recordLamp.mSurfaceValue.setProcessValue(activeDevice, currValue)
-		var isRecordingNow = currValue >= 0.5
+		var isRecordingNow = currValue >= VALUE_STATE.pressThreshold
 		var wasRecording = localStateApi.getBooleanState(activeDevice, localConfig.state.wasRecordingKey, false)
 
 		if (wasRecording && !isRecordingNow) {
@@ -419,7 +492,7 @@ function createBindings(page, ui, localStateApi, localConfig) {
 		var activeDevice = arguments[0]
 		var currValue = Number(arguments[1])
 		if (!activeDevice || isNaN(currValue)) return
-		if (currValue < 0.5) {
+		if (currValue < VALUE_STATE.pressThreshold) {
 			localStateApi.emitStopPulse(activeDevice, ui.stopPulse, localConfig)
 		}
 	}
@@ -428,51 +501,63 @@ function createBindings(page, ui, localStateApi, localConfig) {
 		var activeDevice = arguments[0]
 		var currValue = Number(arguments[1])
 		if (!activeDevice || isNaN(currValue)) return
-		if (currValue >= 0.5) {
+		if (currValue >= VALUE_STATE.pressThreshold) {
 			localStateApi.emitStopPulse(activeDevice, ui.stopPulse, localConfig)
-			ui.recordStopGate.setProcessValue(activeDevice, 0)
-			ui.playButton.mSurfaceValue.setProcessValue(activeDevice, 0)
-			ui.stopButton.mSurfaceValue.setProcessValue(activeDevice, 0)
+			ui.recordStopGate.setProcessValue(activeDevice, VALUE_STATE.off)
+			ui.playButton.mSurfaceValue.setProcessValue(activeDevice, VALUE_STATE.off)
+			ui.stopButton.mSurfaceValue.setProcessValue(activeDevice, VALUE_STATE.off)
 		}
 	}
 
-	ui.fsButtons[5].mSurfaceValue.mOnProcessValueChange = function () {
+	ui.fsButtons[FOOTSWITCH_INDEX.rewind].mSurfaceValue.mOnProcessValueChange = function () {
 		var activeDevice = arguments[0]
 		var currValue = Number(arguments[1])
 		if (!activeDevice || isNaN(currValue)) return
-		ui.fsLamps[5].mSurfaceValue.setProcessValue(activeDevice, currValue >= 0.5 ? 1 : 0)
+		ui.fsLamps[FOOTSWITCH_INDEX.rewind].mSurfaceValue.setProcessValue(
+			activeDevice,
+			currValue >= VALUE_STATE.pressThreshold ? VALUE_STATE.on : VALUE_STATE.off
+		)
 	}
 
-	ui.fsButtons[6].mSurfaceValue.mOnProcessValueChange = function () {
+	ui.fsButtons[FOOTSWITCH_INDEX.forward].mSurfaceValue.mOnProcessValueChange = function () {
 		var activeDevice = arguments[0]
 		var currValue = Number(arguments[1])
 		if (!activeDevice || isNaN(currValue)) return
-		ui.fsLamps[6].mSurfaceValue.setProcessValue(activeDevice, currValue >= 0.5 ? 1 : 0)
+		ui.fsLamps[FOOTSWITCH_INDEX.forward].mSurfaceValue.setProcessValue(
+			activeDevice,
+			currValue >= VALUE_STATE.pressThreshold ? VALUE_STATE.on : VALUE_STATE.off
+		)
 	}
 
-	ui.fsButtons[7].mSurfaceValue.mOnProcessValueChange = function () {
+	ui.fsButtons[FOOTSWITCH_INDEX.undo].mSurfaceValue.mOnProcessValueChange = function () {
 		var activeDevice = arguments[0]
 		var currValue = Number(arguments[1])
 		if (!activeDevice || isNaN(currValue)) return
-		ui.fsLamps[7].mSurfaceValue.setProcessValue(activeDevice, currValue >= 0.5 ? 1 : 0)
+		ui.fsLamps[FOOTSWITCH_INDEX.undo].mSurfaceValue.setProcessValue(
+			activeDevice,
+			currValue >= VALUE_STATE.pressThreshold ? VALUE_STATE.on : VALUE_STATE.off
+		)
 	}
 
-	ui.fsButtons[4].mSurfaceValue.mOnProcessValueChange = function () {
+	ui.fsButtons[FOOTSWITCH_INDEX.tap].mSurfaceValue.mOnProcessValueChange = function () {
 		var activeDevice = arguments[0]
 		var currValue = Number(arguments[1])
 		if (!activeDevice || isNaN(currValue)) return
-		ui.fsLamps[4].mSurfaceValue.setProcessValue(activeDevice, currValue >= 0.5 ? 1 : 0)
-		if (currValue < 0.5 || !activeMappingRef) return
+		ui.fsLamps[FOOTSWITCH_INDEX.tap].mSurfaceValue.setProcessValue(
+			activeDevice,
+			currValue >= VALUE_STATE.pressThreshold ? VALUE_STATE.on : VALUE_STATE.off
+		)
+		if (currValue < VALUE_STATE.pressThreshold || !activeMappingRef) return
 
 		var nowMs = Date.now()
 		var tapConfig = localConfig.tapTempo
-		var lastTapMs = localStateApi.getIntegerState(activeDevice, localConfig.state.lastTapMsKey, 0)
+		var lastTapMs = localStateApi.getIntegerState(activeDevice, localConfig.state.lastTapMsKey, VALUE_STATE.off)
 		var intervalMs = nowMs - lastTapMs
 
 		if (intervalMs >= tapConfig.minTapIntervalMs && intervalMs <= tapConfig.maxTapIntervalMs) {
-			var measuredBpm = 60000 / intervalMs
+			var measuredBpm = TAP_TEMPO_MS_PER_MINUTE / intervalMs
 			var previousBpm = localStateApi.getIntegerState(activeDevice, localConfig.state.tapTempoBpmKey, tapConfig.defaultBpm)
-			var smoothedBpm = Math.round((previousBpm * tapConfig.smoothing) + (measuredBpm * (1 - tapConfig.smoothing)))
+			var smoothedBpm = Math.round((previousBpm * tapConfig.smoothing) + (measuredBpm * (VALUE_STATE.max - tapConfig.smoothing)))
 			page.mHostAccess.mTransport.mTimeDisplay.setTempoBPM(activeMappingRef, smoothedBpm)
 			localStateApi.setIntegerState(activeDevice, localConfig.state.tapTempoBpmKey, smoothedBpm)
 		}

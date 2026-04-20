@@ -391,7 +391,7 @@ function makeFootswitchLabel(localConfig, roleIndex) {
 /**
  * @param {MidiRemoteSurface} surface
  * @param {MappingPage} page
- * @param {Object} surfaceConfig
+ * @param {SurfaceConfig} surfaceConfig
  */
 function createPedalLabels(surface, page, surfaceConfig) {
 	var pedal1Label = surface.makeLabelField(
@@ -413,8 +413,8 @@ function createPedalLabels(surface, page, surfaceConfig) {
 /**
  * @param {MidiRemoteSurface} surface
  * @param {MappingPage} page
- * @param {Object} surfaceConfig
- * @param {Object[]} footswitchPositions
+ * @param {SurfaceConfig} surfaceConfig
+ * @param {Array<{x: number, y: number}>} footswitchPositions
  * @param {object} localConfig
  */
 function createFootswitchOuterLabels(surface, page, surfaceConfig, footswitchPositions, localConfig) {

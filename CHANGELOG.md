@@ -9,15 +9,15 @@ The format is based on Keep a Changelog, and this project aims to follow Semanti
 ### Changed
 - Added repository-local slash command prompts for focused review and commit planning workflows.
 - Updated contributor guidance to include slash-command-based commit preparation.
+- Driver script refactored to replace behavior-relevant magic numbers with named constants and explicit index mappings.
+- Footswitch position generation refactored to loop-based grid construction with inline rationale for row/column ordering.
+- UnO2 setup documentation aligned with active FS5/FS9 and FS6/FS7 mapping semantics.
+- UnO2 setup note and velocity literals replaced by named constants for safer maintenance.
 
 ## [0.2.0] - 2026-03-25 (revised)
 
 ### Changed
 - README aligned with repository identity and GitHub best-practice navigation.
-- Driver script refactored to replace behavior-relevant magic numbers with named constants and explicit index mappings.
-- Footswitch position generation refactored to loop-based grid construction with inline rationale for row/column ordering.
-- UnO2 setup documentation aligned with active FS5/FS9 and FS6/FS7 mapping semantics.
-- UnO2 setup note and velocity literals replaced by named constants for safer maintenance.
 - Fixed competing stop-lamp callbacks (C1): stop lamp is now driven exclusively by play-state inversion.
 - Replaced all `arguments[n]` callback patterns with named parameters (W2).
 - Renamed `tapTempo.smoothing` to `tapTempo.historyWeight` for semantic clarity (S1).

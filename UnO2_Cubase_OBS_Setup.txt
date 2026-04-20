@@ -7,11 +7,11 @@
  * - Footswitch 2 starts playback by sending Note 38 on MIDI channel 10.
  * - Footswitch 3 stops playback by sending Note 40 on MIDI channel 10.
  * - Footswitch 4 controls Cycle by sending Note 41 on MIDI channel 10.
- * - Footswitch 5 controls Tap Tempo by sending Note 43 on MIDI channel 10.
+ * - Footswitch 5 controls Tap Tempo by sending Note 50 on MIDI channel 10.
  * - Footswitch 6 controls Rewind by sending Note 45 on MIDI channel 10.
  * - Footswitch 7 controls Forward by sending Note 47 on MIDI channel 10.
  * - Footswitch 8 controls Undo by sending Note 48 on MIDI channel 10.
- * - Footswitch 9 controls Click by sending Note 50 on MIDI channel 10.
+ * - Footswitch 9 controls Click by sending Note 43 on MIDI channel 10.
  * - Press sends Note On with value 127.
  * - Release sends Note Off with value 0.
  *
@@ -20,8 +20,8 @@
  * - Keep one dedicated Cubase bank with clear transport navigation.
  *
  * Suggested future Cubase note layout on channel 10:
- * FS1=36, FS2=38, FS3=40, FS4=41, FS5=43,
- * FS6=45, FS7=47, FS8=48, FS9=50, FS10=52.
+ * FS1=36, FS2=38, FS3=40, FS4=41, FS5=50,
+ * FS6=45, FS7=47, FS8=48, FS9=43, FS10=52.
  */
 
 PRESETS =
@@ -73,20 +73,32 @@ CHANNEL OBS_MIDI_CHANNEL = 11
 // VAR $EXP_B_CC = 107      
 
 VAR $current_bank = 0
-VAR $on = 127
-VAR $off = 0
+
+/* MIDI note/velocity constants to avoid hardcoded values in effect blocks */
+VAR $NOTE_ON_VELOCITY = 127
+VAR $NOTE_OFF_VELOCITY = 0
+VAR $NOTE_FS1_RECORD = 36
+VAR $NOTE_FS2_PLAY = 38
+VAR $NOTE_FS3_STOP = 40
+VAR $NOTE_FS4_CYCLE = 41
+VAR $NOTE_FS5_TAP = 50
+VAR $NOTE_FS6_REWIND = 45
+VAR $NOTE_FS7_FORWARD = 47
+VAR $NOTE_FS8_UNDO = 48
+VAR $NOTE_FS9_CLICK = 43
+VAR $NOTE_FS10_USER_FUNCTION = 52
 
 /* Documentation-only note map for future expansion
- * FS1  -> Note 36  -> Record
- * FS2  -> Note 38  -> Play
- * FS3  -> Note 40  -> Stop
- * FS4  -> Note 41  -> Cycle
- * FS5  -> Note 43  -> Tap Tempo
- * FS6  -> Note 45  -> Rewind
- * FS7  -> Note 47  -> Forward
- * FS8  -> Note 48  -> Undo
- * FS9  -> Note 50  -> Click
- * FS10 -> Note 52  -> User Function
+ * FS1  -> Note $NOTE_FS1_RECORD -> Record
+ * FS2  -> Note $NOTE_FS2_PLAY -> Play
+ * FS3  -> Note $NOTE_FS3_STOP -> Stop
+ * FS4  -> Note $NOTE_FS4_CYCLE -> Cycle
+ * FS5  -> Note $NOTE_FS5_TAP -> Tap Tempo
+ * FS6  -> Note $NOTE_FS6_REWIND -> Rewind
+ * FS7  -> Note $NOTE_FS7_FORWARD -> Forward
+ * FS8  -> Note $NOTE_FS8_UNDO -> Undo
+ * FS9  -> Note $NOTE_FS9_CLICK -> Click
+ * FS10 -> Note $NOTE_FS10_USER_FUNCTION -> User Function
  */
 
 
@@ -112,76 +124,76 @@ INIT_BANK bank 1 =
 
 EFFECT_ON CUBASE_RECORD = {
    /* Footswitch press -> start Cubase recording */
-   SendMidi CUBASE_MIDI_CHANNEL NoteOn 36 $on
+   SendMidi CUBASE_MIDI_CHANNEL NoteOn $NOTE_FS1_RECORD $NOTE_ON_VELOCITY
 }
 
 EFFECT_OFF CUBASE_RECORD = {
    /* Footswitch release -> stop Cubase recording in the MIDI Remote script */
-   SendMidi CUBASE_MIDI_CHANNEL NoteOff 36 $off
+   SendMidi CUBASE_MIDI_CHANNEL NoteOff $NOTE_FS1_RECORD $NOTE_OFF_VELOCITY
 }
 
 EFFECT_ON CUBASE_PLAY = {
    /* Footswitch press -> start Cubase playback */
-   SendMidi CUBASE_MIDI_CHANNEL NoteOn 38 $on
+   SendMidi CUBASE_MIDI_CHANNEL NoteOn $NOTE_FS2_PLAY $NOTE_ON_VELOCITY
 }
 
 EFFECT_OFF CUBASE_PLAY = {
-   SendMidi CUBASE_MIDI_CHANNEL NoteOff 38 $off
+   SendMidi CUBASE_MIDI_CHANNEL NoteOff $NOTE_FS2_PLAY $NOTE_OFF_VELOCITY
 }
 
 EFFECT_ON CUBASE_STOP = {
    /* Footswitch press -> stop Cubase playback */
-   SendMidi CUBASE_MIDI_CHANNEL NoteOn 40 $on
+   SendMidi CUBASE_MIDI_CHANNEL NoteOn $NOTE_FS3_STOP $NOTE_ON_VELOCITY
 }
 
 EFFECT_OFF CUBASE_STOP = {
-   SendMidi CUBASE_MIDI_CHANNEL NoteOff 40 $off
+   SendMidi CUBASE_MIDI_CHANNEL NoteOff $NOTE_FS3_STOP $NOTE_OFF_VELOCITY
 }
 
 EFFECT_ON CUBASE_CYCLE = {
-   SendMidi CUBASE_MIDI_CHANNEL NoteOn 41 $on
+   SendMidi CUBASE_MIDI_CHANNEL NoteOn $NOTE_FS4_CYCLE $NOTE_ON_VELOCITY
 }
 
 EFFECT_OFF CUBASE_CYCLE = {
-   SendMidi CUBASE_MIDI_CHANNEL NoteOff 41 $off
+   SendMidi CUBASE_MIDI_CHANNEL NoteOff $NOTE_FS4_CYCLE $NOTE_OFF_VELOCITY
 }
 
 EFFECT_ON CUBASE_CLICK = {
-   SendMidi CUBASE_MIDI_CHANNEL NoteOn 50 $on
+   SendMidi CUBASE_MIDI_CHANNEL NoteOn $NOTE_FS9_CLICK $NOTE_ON_VELOCITY
 }
 
 EFFECT_OFF CUBASE_CLICK = {
-   SendMidi CUBASE_MIDI_CHANNEL NoteOff 50 $off
+   SendMidi CUBASE_MIDI_CHANNEL NoteOff $NOTE_FS9_CLICK $NOTE_OFF_VELOCITY
 }
 
 EFFECT_ON CUBASE_REWIND = {
-   SendMidi CUBASE_MIDI_CHANNEL NoteOn 45 $on
+   SendMidi CUBASE_MIDI_CHANNEL NoteOn $NOTE_FS6_REWIND $NOTE_ON_VELOCITY
 }
 
 EFFECT_OFF CUBASE_REWIND = {
-   SendMidi CUBASE_MIDI_CHANNEL NoteOff 45 $off
+   SendMidi CUBASE_MIDI_CHANNEL NoteOff $NOTE_FS6_REWIND $NOTE_OFF_VELOCITY
 }
 
 EFFECT_ON CUBASE_FORWARD = {
-   SendMidi CUBASE_MIDI_CHANNEL NoteOn 47 $on
+   SendMidi CUBASE_MIDI_CHANNEL NoteOn $NOTE_FS7_FORWARD $NOTE_ON_VELOCITY
 }
 
 EFFECT_OFF CUBASE_FORWARD = {
-   SendMidi CUBASE_MIDI_CHANNEL NoteOff 47 $off
+   SendMidi CUBASE_MIDI_CHANNEL NoteOff $NOTE_FS7_FORWARD $NOTE_OFF_VELOCITY
 }
 
 EFFECT_ON CUBASE_UNDO = {
-   SendMidi CUBASE_MIDI_CHANNEL NoteOn 48 $on
+   SendMidi CUBASE_MIDI_CHANNEL NoteOn $NOTE_FS8_UNDO $NOTE_ON_VELOCITY
 }
 
 EFFECT_OFF CUBASE_UNDO = {
-   SendMidi CUBASE_MIDI_CHANNEL NoteOff 48 $off
+   SendMidi CUBASE_MIDI_CHANNEL NoteOff $NOTE_FS8_UNDO $NOTE_OFF_VELOCITY
 }
 
 EFFECT_ON CUBASE_TAP = {
-   SendMidi CUBASE_MIDI_CHANNEL NoteOn 43 $on
+   SendMidi CUBASE_MIDI_CHANNEL NoteOn $NOTE_FS5_TAP $NOTE_ON_VELOCITY
 }
 
 EFFECT_OFF CUBASE_TAP = {
-   SendMidi CUBASE_MIDI_CHANNEL NoteOff 43 $off
+   SendMidi CUBASE_MIDI_CHANNEL NoteOff $NOTE_FS5_TAP $NOTE_OFF_VELOCITY
 }

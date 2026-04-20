@@ -42,4 +42,11 @@ The script uses per-device state storage for robust behavior:
 - Stop pulse debounce timing
 - Tap tempo interval and smoothing state
 
+FS3 stop handling intentionally uses a reinforced path:
+
+- Direct stop binding on the FS3 control
+- Additional debounced stop pulse emitted in the FS3 process callback
+
+This redundancy is deliberate to keep stop behavior predictable in live transport scenarios.
+
 Defensive checks are used before processing runtime values to avoid invalid input propagation.

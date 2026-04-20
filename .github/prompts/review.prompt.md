@@ -7,6 +7,10 @@ agent: agent
 
 Perform a thorough, critical review of the entire project. Check every area listed below. Report all findings grouped by severity at the end.
 
+This prompt must produce two outputs:
+- A complete review in chat
+- A persisted Markdown report file in the repository
+
 ---
 
 ## 1. Code Quality — `Behringer_BehringerFCB1010UnO2.js`
@@ -24,6 +28,7 @@ Perform a thorough, critical review of the entire project. Check every area list
 ## 2. Documentation Currency
 
 - `README.md`: reflects current FS assignments (FS1–FS9), layout options, and installation steps?
+- `UnO2_Cubase_OBS_Setup.txt`: reflects current FS note assignments, role names, and press/release behavior?
 - `docs/ARCHITECTURE.md`: accurate against actual script structure?
 - `docs/DEVELOPMENT.md`: setup steps and test checklist still valid?
 - `CHANGELOG.md`: are all recent changes logged with correct version and date?
@@ -101,11 +106,91 @@ For each finding:
 - **Issue**: concise description
 - **Fix**: concrete recommendation
 
-## Output Requirements
+---
 
-- Do not only display the review results in chat.
-- Also create a markdown report file in the repository root named with this timestamp pattern:
-  - `YYYY-MM-DD_HH-MM-SS-review.md`
-  - example: `2026-03-25_12-34-53-review.md`
-- The report file must contain the same findings shown in chat.
-- All links in the report file must be relative repository links and must resolve correctly.
+## Persisted Report (Required)
+
+After completing the review, always create a Markdown report file in this location:
+
+- `docs/reviews/YYYY-MM-DD-review.md`
+
+If a file for the same date already exists, create a new one with a time suffix:
+
+- `docs/reviews/YYYY-MM-DD-HH-mm-review.md`
+
+Do not overwrite an existing review report.
+
+Use GitHub-flavored Markdown and this template structure.
+
+```markdown
+# Full Project Review Report
+
+- Date: YYYY-MM-DD
+- Repository: owner/name
+- Branch reviewed: <branch>
+- Reviewer: GitHub Copilot (GPT-5.3-Codex)
+
+## Scope
+
+- Code Quality (`Behringer_BehringerFCB1010UnO2.js`)
+- Documentation Currency (`README.md`, `docs/ARCHITECTURE.md`, `docs/DEVELOPMENT.md`, `CHANGELOG.md`, `UnO2_Cubase_OBS_Setup.txt`, `docs/2026-*.md`)
+- Repository Health (`.gitignore`, `LICENSE`, `CODEOWNERS`, `.editorconfig`, `.gitattributes`, governance files)
+- GitHub Configuration (`.github/ISSUE_TEMPLATE/`, `.github/PULL_REQUEST_TEMPLATE.md`, `.github/copilot-instructions.md`, link checks)
+- Rule Compliance (naming, language, documentation discipline, attribution integrity)
+
+## Severity Summary
+
+- Critical: <count>
+- Warning: <count>
+- Suggestion: <count>
+
+## Critical
+
+<List findings or write "No critical findings.">
+
+### C1: <short title>
+- File: path/to/file.ext:line
+- Issue: <concise description>
+- Fix: <concrete recommendation>
+
+## Warning
+
+<List findings or write "No warning findings.">
+
+### W1: <short title>
+- File: path/to/file.ext:line
+- Issue: <concise description>
+- Fix: <concrete recommendation>
+
+## Suggestion
+
+<List findings or write "No suggestion findings.">
+
+### S1: <short title>
+- File: path/to/file.ext:line
+- Issue: <concise description>
+- Fix: <concrete recommendation>
+
+## Open Questions / Assumptions
+
+- <question or assumption>
+
+## Validation Notes
+
+- Review method: static analysis of repository files and configuration.
+- Runtime validation performed: <yes/no and details>
+
+## Change Safety
+
+- This review report does not modify runtime behavior.
+```
+
+GitHub and best-practice rules for the report:
+- Use exactly one H1 title.
+- Keep headings stable and concise.
+- Use relative file paths and include line numbers when known.
+- Keep findings actionable: each finding must include File, Issue, and Fix.
+- Avoid vague wording; prefer concrete, verifiable statements.
+- Keep language English only.
+
+After writing the file, provide a short chat summary and include the exact report path.

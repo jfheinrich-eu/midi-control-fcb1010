@@ -4,6 +4,10 @@
 
 This project provides a Cubase MIDI Remote script for the Behringer FCB1010 (UnO2 setup).
 
+Primary behavior documentation artifacts:
+- `README.md`
+- `UnO2_Cubase_OBS_Setup.txt`
+
 ## Requirements
 
 - Cubase with MIDI Remote support
@@ -23,11 +27,12 @@ This project provides a Cubase MIDI Remote script for the Behringer FCB1010 (UnO
 - FS3: stop + record-off behavior
 - FS4: cycle toggle
 - FS5: tap tempo
-- FS6: rewind lamp feedback
-- FS7: forward lamp feedback
-- FS8: undo lamp feedback
+- FS6: rewind momentary behavior
+- FS7: forward momentary behavior
+- FS8: undo trigger and lamp feedback
 - FS9: metronome click toggle
 - UI row order matches hardware orientation
+- Mapping consistency check: `FOOTSWITCH_NOTES_BY_ROW` (driver), `README.md` MIDI table, and `UnO2_Cubase_OBS_Setup.txt` are aligned after every mapping change
 
 ## Coding Guidelines
 
@@ -43,6 +48,45 @@ This project provides a Cubase MIDI Remote script for the Behringer FCB1010 (UnO
   - `README.md`
   - `UnO2_Cubase_OBS_Setup.txt`
 - Ensure transport-role names (for example Rewind/Forward, Tap/Click) are identical in code and docs.
+
+## Documentation Link Sanity Check
+
+Run this lightweight local check before PR creation when markdown links were changed:
+
+```bash
+repo_root="$(git rev-parse --show-toplevel)"
+cd "$repo_root"
+failed=0
+
+while IFS= read -r markdown_file; do
+  while IFS= read -r link_target; do
+    clean_target="${link_target%%#*}"
+    [ -z "$clean_target" ] && continue
+    echo "$clean_target" | grep -Eq '^(https?://|mailto:|[a-zA-Z]+:)' && continue
+
+    if [[ "$clean_target" = /* ]]; then
+      resolved_path="$repo_root$clean_target"
+    else
+      resolved_path="$(dirname "$markdown_file")/$clean_target"
+    fi
+
+    [ -e "$resolved_path" ] || {
+      echo "BROKEN $markdown_file -> $link_target"
+      failed=1
+    }
+  done < <(
+    grep -oE '\\[[^]]+\\]\\([^)]+\\)' "$markdown_file" \
+      | sed -E 's/^.*\\(([^)]+)\\)$/\\1/'
+  )
+done < <(git ls-files '*.md')
+
+if [ "$failed" -ne 0 ]; then
+  echo "Markdown link check failed."
+  exit 1
+fi
+
+echo "Markdown link check passed."
+```
 
 ## Automation Consistency
 

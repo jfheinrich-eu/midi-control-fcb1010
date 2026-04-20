@@ -23,8 +23,14 @@ Thanks for contributing to `jfheinrich-eu/midi-control-fcb1010`.
    - FS1 press/release record flow
    - FS2 play/release stop pulse
    - FS3 stop and record-off behavior
+   - FS4 cycle toggle behavior
    - FS5 tap tempo
+   - FS6 rewind momentary behavior
+   - FS7 forward momentary behavior
+   - FS8 undo command trigger + lamp feedback
    - FS9 click toggle
+   - UI row order and lamp feedback consistency
+   - Mapping consistency across `FOOTSWITCH_NOTES_BY_ROW`, `README.md` MIDI table, and `UnO2_Cubase_OBS_Setup.txt`
 4. Confirm no regressions in transport logic and lamp feedback.
 
 ## Pull Requests
@@ -39,3 +45,4 @@ Thanks for contributing to `jfheinrich-eu/midi-control-fcb1010`.
 - Use clear, descriptive commit messages.
 - Group related changes only.
 - Do not mix refactors and behavior changes unless required.
+- Use the `/commit` slash command in Copilot Chat if you want guided commit grouping, conventional commit proposals, and per-group approval before execution.

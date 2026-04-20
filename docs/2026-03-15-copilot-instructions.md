@@ -4,7 +4,7 @@
 Created a new instruction file for AI-assisted development workflow and quality standards.
 
 ## Files Changed
-- copilot_instructions.md
+- .github/copilot-instructions.md
 
 ## What Changed
 - Added explicit language rule: all code responses and file content must be in English.
@@ -19,6 +19,6 @@ Created a new instruction file for AI-assisted development workflow and quality 
 To ensure consistent quality, trustworthy outputs, maintainable script design, and domain-correct MIDI Remote implementations.
 
 ## Validation Performed
-- Confirmed instruction file exists at project root.
+- Confirmed instruction file exists at `.github/copilot-instructions.md`.
 - Confirmed documentation entry exists inside docs as Markdown.
 - Confirmed all new file content is written in English.

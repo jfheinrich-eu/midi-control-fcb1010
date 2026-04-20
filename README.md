@@ -168,7 +168,7 @@ The workspace already contains a related UnO2 mapping using this note layout on 
 | 9 | 10 | 50 |
 | 10 | 10 | 52 |
 
-This is not required for the current one-switch script, but it is a sensible base if you want to keep your UnO2 configuration aligned with a future complete FCB1010 Cubase profile.
+This is not required for the current transport script, but it is a sensible base if you want to keep your UnO2 configuration aligned with a future complete FCB1010 Cubase profile.
 
 ## Suggested Footswitch Layout
 The following layout is meant to stay easy to understand for a regular guitarist. It avoids abstract technical naming and follows typical live or recording priorities.

@@ -23,8 +23,12 @@ This project provides a Cubase MIDI Remote script for the Behringer FCB1010 (UnO
 - FS3: stop + record-off behavior
 - FS4: cycle toggle
 - FS5: tap tempo
+- FS6: rewind momentary behavior
+- FS7: forward momentary behavior
+- FS8: undo trigger and lamp feedback
 - FS9: metronome click toggle
 - UI row order matches hardware orientation
+- Mapping consistency check: `FOOTSWITCH_NOTES_BY_ROW` (driver), `README.md` MIDI table, and `UnO2_Cubase_OBS_Setup.txt` are aligned after every mapping change
 
 ## Coding Guidelines
 

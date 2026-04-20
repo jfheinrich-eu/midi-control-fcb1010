@@ -17,10 +17,10 @@ No critical findings.
 
 ## Warning
 
-### W1: CHANGELOG is not updated for the new repository-local workflow commands
+### W1: CHANGELOG was not updated for the new repository-local workflow commands at review time
 - File: CHANGELOG.md:6
-- Issue: The Unreleased section documents recent runtime and governance changes, but it does not mention the newly added repository-local slash commands and contributor workflow updates now present in `.github/prompts/commit.prompt.md`, `.github/prompts/review-lite.prompt.md`, and `CONTRIBUTING.md`.
-- Fix: Add concise Unreleased entries for the new `/commit` and `/review-lite` prompt workflows and the related contributor guidance.
+- Issue: At the time of this review snapshot, the Unreleased section documented recent runtime and governance changes, but it did not mention the newly added repository-local slash commands and contributor workflow updates now present in `.github/prompts/commit.prompt.md`, `.github/prompts/review-lite.prompt.md`, and `CONTRIBUTING.md`.
+- Fix: Historical review finding only. The related `CHANGELOG.md` Unreleased entries were added after this review snapshot; see `docs/2026-04-20-review-lite-followups.md` for the follow-up record and current status.
 
 ### W2: Pull request checklist is missing the mapping-consistency verification now required by the development guide
 - File: .github/PULL_REQUEST_TEMPLATE.md:13

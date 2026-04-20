@@ -59,24 +59,25 @@ cd "$repo_root"
 failed=0
 
 while IFS= read -r markdown_file; do
-  grep -oE '\\[[^]]+\\]\\([^)]+\\)' "$markdown_file" \
-    | sed -E 's/^.*\\(([^)]+)\\)$/\\1/' \
-    | while IFS= read -r link_target; do
-        clean_target="${link_target%%#*}"
-        [ -z "$clean_target" ] && continue
-        echo "$clean_target" | grep -Eq '^(https?://|mailto:|[a-zA-Z]+:)' && continue
+  while IFS= read -r link_target; do
+    clean_target="${link_target%%#*}"
+    [ -z "$clean_target" ] && continue
+    echo "$clean_target" | grep -Eq '^(https?://|mailto:|[a-zA-Z]+:)' && continue
 
-        if [[ "$clean_target" = /* ]]; then
-          resolved_path="$repo_root$clean_target"
-        else
-          resolved_path="$(dirname "$markdown_file")/$clean_target"
-        fi
+    if [[ "$clean_target" = /* ]]; then
+      resolved_path="$repo_root$clean_target"
+    else
+      resolved_path="$(dirname "$markdown_file")/$clean_target"
+    fi
 
-        [ -e "$resolved_path" ] || {
-          echo "BROKEN $markdown_file -> $link_target"
-          failed=1
-        }
-      done
+    [ -e "$resolved_path" ] || {
+      echo "BROKEN $markdown_file -> $link_target"
+      failed=1
+    }
+  done < <(
+    grep -oE '\\[[^]]+\\]\\([^)]+\\)' "$markdown_file" \
+      | sed -E 's/^.*\\(([^)]+)\\)$/\\1/'
+  )
 done < <(git ls-files '*.md')
 
 if [ "$failed" -ne 0 ]; then

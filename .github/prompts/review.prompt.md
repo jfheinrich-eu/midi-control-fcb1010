@@ -133,7 +133,7 @@ Use GitHub-flavored Markdown and this template structure.
 ## Scope
 
 - Code Quality (`Behringer_BehringerFCB1010UnO2.js`)
-- Documentation Currency (`README.md`, `docs/ARCHITECTURE.md`, `docs/DEVELOPMENT.md`, `CHANGELOG.md`, `docs/2026-*.md`)
+- Documentation Currency (`README.md`, `docs/ARCHITECTURE.md`, `docs/DEVELOPMENT.md`, `CHANGELOG.md`, `UnO2_Cubase_OBS_Setup.txt`, `docs/2026-*.md`)
 - Repository Health (`.gitignore`, `LICENSE`, `CODEOWNERS`, `.editorconfig`, `.gitattributes`, governance files)
 - GitHub Configuration (`.github/ISSUE_TEMPLATE/`, `.github/PULL_REQUEST_TEMPLATE.md`, `.github/copilot-instructions.md`, link checks)
 - Rule Compliance (naming, language, documentation discipline, attribution integrity)

@@ -53,8 +53,8 @@ var FOOTSWITCH_INDEX = {
 }
 
 var FOOTSWITCH_NOTES_BY_ROW = {
-	bottom: [36, 38, 40, 41, 43],
-	top: [45, 47, 48, 50, 52]
+	bottom: [36, 38, 40, 41, 50],
+	top: [45, 47, 48, 43, 52]
 }
 
 var SURFACE_TEXT_LAYOUT = {

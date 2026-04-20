@@ -118,17 +118,17 @@ Required triggers for the current script:
 | 2 | Play | Note | 10 | 38 | 127 | 0 | Momentary |
 | 3 | Stop | Note | 10 | 40 | 127 | 0 | Momentary |
 | 4 | Cycle | Note | 10 | 41 | 127 | 0 | Toggle |
-| 5 | Tap Tempo | Note | 10 | 43 | 127 | 0 | Momentary |
+| 5 | Tap Tempo | Note | 10 | 50 | 127 | 0 | Momentary |
 | 6 | Rewind | Note | 10 | 45 | 127 | 0 | Momentary |
 | 7 | Forward | Note | 10 | 47 | 127 | 0 | Momentary |
 | 8 | Undo | Note | 10 | 48 | 127 | 0 | Momentary |
-| 9 | Click | Note | 10 | 50 | 127 | 0 | Toggle |
+| 9 | Click | Note | 10 | 43 | 127 | 0 | Toggle |
 
 ### What to configure in UnO2 Control Center
 In the UnO2 Control Center editor, create or edit the footswitch assignments so that the first three switches send these note events:
 
 1. Select the preset or mode you want to use for Cubase control.
-2. Configure FS1..FS9 to notes 36, 38, 40, 41, 43, 45, 47, 48, 50 on MIDI channel 10.
+2. Configure FS1..FS9 to notes 36, 38, 40, 41, 50, 45, 47, 48, 43 on MIDI channel 10.
 3. Set FS1, FS2, FS3, FS5, FS6, FS7, FS8 to momentary.
 4. Set FS4 and FS9 to toggle (or momentary if you prefer host-side toggling).
 5. Make sure press sends Note On with velocity/value 127.
@@ -162,11 +162,11 @@ The workspace already contains a related UnO2 mapping using this note layout on 
 | 2 | 10 | 38 |
 | 3 | 10 | 40 |
 | 4 | 10 | 41 |
-| 5 | 10 | 43 |
+| 5 | 10 | 50 |
 | 6 | 10 | 45 |
 | 7 | 10 | 47 |
 | 8 | 10 | 48 |
-| 9 | 10 | 50 |
+| 9 | 10 | 43 |
 | 10 | 10 | 52 |
 
 This is not required for the current transport script, but it is a sensible base if you want to keep your UnO2 configuration aligned with a future complete FCB1010 Cubase profile.
@@ -180,11 +180,11 @@ The following layout is meant to stay easy to understand for a regular guitarist
 | 2 | Play | 10 | 38 | Play |
 | 3 | Stop | 10 | 40 | Stop |
 | 4 | Cycle On / Off | 10 | 41 | Cycle |
-| 5 | Tap Tempo | 10 | 43 | Tap |
+| 5 | Tap Tempo | 10 | 50 | Tap |
 | 6 | Rewind (momentary) | 10 | 45 | Rewind |
 | 7 | Forward (momentary) | 10 | 47 | Forward |
 | 8 | Undo | 10 | 48 | Undo |
-| 9 | Metronome On / Off | 10 | 50 | Click |
+| 9 | Metronome On / Off | 10 | 43 | Click |
 | 10 | Talkback / User Function | 10 | 52 | User |
 
 Notes:

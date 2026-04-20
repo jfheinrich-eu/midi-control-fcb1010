@@ -30,7 +30,7 @@
 - VS Code diagnostics check on `Behringer_BehringerFCB1010UnO2.js`: no errors.
 - Manual verification of note mapping order:
   - `FOOTSWITCH_NOTES_BY_ROW.bottom.concat(FOOTSWITCH_NOTES_BY_ROW.top)` still resolves to
-    `[36, 38, 40, 41, 43, 45, 47, 48, 50, 52]`.
+    `[36, 38, 40, 41, 50, 45, 47, 48, 43, 52]`.
 - Manual verification of position generation semantics:
   - `makeFootswitchPositions()` still generates 10 positions in identical order semantics:
     indices `0..4` bottom row, `5..9` top row.

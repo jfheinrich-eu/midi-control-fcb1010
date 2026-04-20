@@ -25,4 +25,4 @@
 - Verified effect definitions remain unchanged:
   - `CUBASE_CLICK` sends Note `43`.
   - `CUBASE_TAP` sends Note `50`.
-- Verified only comments/documentation text was updated; no executable setup blocks were modified.
+- Verified no runtime behavior changes to the active setup mapping or effect output.

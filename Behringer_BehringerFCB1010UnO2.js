@@ -94,7 +94,6 @@ var config = {
 	surface: {
 		width: 27,
 		height: 16.6,
-		layoutPreset: 'wide',
 		pedalY: 0.2,
 		pedalWidth: 10,
 		pedalHeight: 4.2,
@@ -159,7 +158,71 @@ var config = {
 }
 
 /**
- * @param {*} activeDevice
+ * @typedef {Object} ActiveDevice
+ * @property {function(string): string} getState
+ * @property {function(string, string): void} setState
+ */
+
+/**
+ * @typedef {Object} DriverConfig
+ * @property {{vendorName: string, deviceName: string, createdBy: string}} driver
+ * @property {{recording: string}} page
+ * @property {{portNames: string[]}} detection
+ * @property {Object} surface
+ * @property {{channelZeroBased: number, footswitchNotes: number[]}} midi
+ * @property {{maxRoleLabelLength: number, roles: string[]}} footswitch
+ * @property {{minTapIntervalMs: number, maxTapIntervalMs: number, defaultBpm: number, smoothing: number}} tapTempo
+ * @property {{wasRecordingKey: string, lastStopPulseMsKey: string, lastTapMsKey: string, tapTempoBpmKey: string, stopPulseDebounceMs: number}} state
+ */
+
+/**
+ * @typedef {Object} StopPulseValue
+ * @property {function(ActiveDevice, number): void} setProcessValue
+ */
+
+/**
+ * @typedef {Object} StateApi
+ * @property {function(ActiveDevice, string, boolean): boolean} getBooleanState
+ * @property {function(ActiveDevice, string, boolean): void} setBooleanState
+ * @property {function(ActiveDevice, string, number): number} getIntegerState
+ * @property {function(ActiveDevice, string, number): void} setIntegerState
+ * @property {function(ActiveDevice, StopPulseValue, DriverConfig): void} emitStopPulse
+ */
+
+/**
+ * @typedef {Object} SurfaceUi
+ * @property {Array} fsButtons
+ * @property {Array} fsLamps
+ * @property {*} recordButton
+ * @property {*} playButton
+ * @property {*} stopButton
+ * @property {*} recordLamp
+ * @property {*} playLamp
+ * @property {*} stopLamp
+ * @property {*} cycleLamp
+ * @property {*} metronomeLamp
+ * @property {StopPulseValue} stopPulse
+ * @property {*} recordStopGate
+ * @property {*} playStatus
+ * @property {*} stopStatus
+ * @property {*} cycleStatus
+ * @property {*} metronomeStatus
+ */
+
+/**
+ * @typedef {Object} MidiRemoteSurface
+ */
+
+/**
+ * @typedef {Object} MappingPage
+ */
+
+/**
+ * @typedef {Object} MidiInputPort
+ */
+
+/**
+ * @param {ActiveDevice} activeDevice
  * @param {string} key
  * @param {boolean} fallback
  * @returns {boolean}
@@ -172,7 +235,7 @@ function getBooleanState(activeDevice, key, fallback) {
 }
 
 /**
- * @param {*} activeDevice
+ * @param {ActiveDevice} activeDevice
  * @param {string} key
  * @param {boolean} value
  */
@@ -181,7 +244,7 @@ function setBooleanState(activeDevice, key, value) {
 }
 
 /**
- * @param {*} activeDevice
+ * @param {ActiveDevice} activeDevice
  * @param {string} key
  * @param {number} fallback
  * @returns {number}
@@ -193,7 +256,7 @@ function getIntegerState(activeDevice, key, fallback) {
 }
 
 /**
- * @param {*} activeDevice
+ * @param {ActiveDevice} activeDevice
  * @param {string} key
  * @param {number} value
  */
@@ -202,9 +265,9 @@ function setIntegerState(activeDevice, key, value) {
 }
 
 /**
- * @param {*} activeDevice
- * @param {*} stopPulse
- * @param {*} localConfig
+ * @param {ActiveDevice} activeDevice
+ * @param {StopPulseValue} stopPulse
+ * @param {DriverConfig} localConfig
  */
 function emitStopPulse(activeDevice, stopPulse, localConfig) {
 	var nowMs = Date.now()
@@ -227,7 +290,7 @@ var stateApi = {
 }
 
 /**
- * @param {*} surfaceConfig
+ * @param {Object} surfaceConfig
  */
 function makeFootswitchPositions(surfaceConfig) {
 	var positions = []
@@ -249,13 +312,13 @@ function makeFootswitchPositions(surfaceConfig) {
 }
 
 /**
- * @param {*} surfaceConfig
- * @returns {*}
+ * @param {Object} surfaceConfig
+ * @returns {Object}
  */
 function resolveSurfaceConfig(surfaceConfig) {
 	var layoutMap = surfaceConfig.layouts || {}
-	var presetName = surfaceConfig.layoutPreset
 	var fallbackPresetName = 'wide'
+	var presetName = surfaceConfig.layoutPreset || fallbackPresetName
 	var preset = layoutMap[presetName] || layoutMap[fallbackPresetName] || {}
 	var resolved = {}
 	var key
@@ -291,7 +354,7 @@ function normalizeRoleLabel(roleName, maxLength) {
 }
 
 /**
- * @param {*} localConfig
+ * @param {DriverConfig} localConfig
  * @param {number} roleIndex
  * @returns {string}
  */
@@ -304,10 +367,52 @@ function makeFootswitchLabel(localConfig, roleIndex) {
 }
 
 /**
- * @param {*} surface
- * @param {*} page
- * @param {*} midiInput
- * @param {*} localConfig
+ * @param {MidiRemoteSurface} surface
+ * @param {MappingPage} page
+ * @param {Object} surfaceConfig
+ */
+function createPedalLabels(surface, page, surfaceConfig) {
+	var pedal1Label = surface.makeLabelField(
+		surfaceConfig.leftPedalX + SURFACE_TEXT_LAYOUT.pedalLabelXOffset,
+		surfaceConfig.pedalY + surfaceConfig.pedalHeight + SURFACE_TEXT_LAYOUT.pedalLabelYOffset,
+		SURFACE_TEXT_LAYOUT.pedalLabelWidth,
+		SURFACE_TEXT_LAYOUT.pedalLabelHeight
+	)
+	var pedal2Label = surface.makeLabelField(
+		surfaceConfig.rightPedalX + SURFACE_TEXT_LAYOUT.pedalLabelXOffset,
+		surfaceConfig.pedalY + surfaceConfig.pedalHeight + SURFACE_TEXT_LAYOUT.pedalLabelYOffset,
+		SURFACE_TEXT_LAYOUT.pedalLabelWidth,
+		SURFACE_TEXT_LAYOUT.pedalLabelHeight
+	)
+	page.setLabelFieldText(pedal1Label, 'Pedal 1')
+	page.setLabelFieldText(pedal2Label, 'Pedal 2')
+}
+
+/**
+ * @param {MidiRemoteSurface} surface
+ * @param {MappingPage} page
+ * @param {Object} surfaceConfig
+ * @param {Object[]} footswitchPositions
+ * @param {DriverConfig} localConfig
+ */
+function createFootswitchOuterLabels(surface, page, surfaceConfig, footswitchPositions, localConfig) {
+	for (var labelIndex = 0; labelIndex < footswitchPositions.length; ++labelIndex) {
+		var labelPos = footswitchPositions[labelIndex]
+		var labelWidth = surfaceConfig.footswitchLabelWidth
+		var labelHeight = surfaceConfig.footswitchLabelHeight
+		var labelX = labelPos.x - (labelWidth - surfaceConfig.footswitchHeight) / 2
+		var fsLabelY = labelPos.y + surfaceConfig.footswitchHeight + surfaceConfig.footswitchLabelYOffset
+		var fsLabel = surface.makeLabelField(labelX, fsLabelY, labelWidth, labelHeight)
+		page.setLabelFieldText(fsLabel, makeFootswitchLabel(localConfig, labelIndex))
+	}
+}
+
+/**
+ * @param {MidiRemoteSurface} surface
+ * @param {MappingPage} page
+ * @param {MidiInputPort} midiInput
+ * @param {DriverConfig} localConfig
+ * @returns {SurfaceUi}
  */
 function createSurface(surface, page, midiInput, localConfig) {
 	var surfaceConfig = resolveSurfaceConfig(localConfig.surface)
@@ -320,7 +425,6 @@ function createSurface(surface, page, midiInput, localConfig) {
 	var footswitchPositions = makeFootswitchPositions(surfaceConfig)
 	var footswitchButtons = []
 	var footswitchLamps = []
-	var footswitchInnerLabels = []
 
 	for (var footswitchIndex = 0; footswitchIndex < footswitchPositions.length; ++footswitchIndex) {
 		var pos = footswitchPositions[footswitchIndex]
@@ -346,39 +450,14 @@ function createSurface(surface, page, midiInput, localConfig) {
 			)
 			innerLabel.relateTo(button)
 			page.setLabelFieldText(innerLabel, 'TAP')
-			footswitchInnerLabels.push(innerLabel)
-		} else {
-			footswitchInnerLabels.push(null)
 		}
 
 		footswitchButtons.push(button)
 		footswitchLamps.push(lamp)
 	}
 
-	var pedal1Label = surface.makeLabelField(
-		surfaceConfig.leftPedalX + SURFACE_TEXT_LAYOUT.pedalLabelXOffset,
-		surfaceConfig.pedalY + surfaceConfig.pedalHeight + SURFACE_TEXT_LAYOUT.pedalLabelYOffset,
-		SURFACE_TEXT_LAYOUT.pedalLabelWidth,
-		SURFACE_TEXT_LAYOUT.pedalLabelHeight
-	)
-	var pedal2Label = surface.makeLabelField(
-		surfaceConfig.rightPedalX + SURFACE_TEXT_LAYOUT.pedalLabelXOffset,
-		surfaceConfig.pedalY + surfaceConfig.pedalHeight + SURFACE_TEXT_LAYOUT.pedalLabelYOffset,
-		SURFACE_TEXT_LAYOUT.pedalLabelWidth,
-		SURFACE_TEXT_LAYOUT.pedalLabelHeight
-	)
-	page.setLabelFieldText(pedal1Label, 'Pedal 1')
-	page.setLabelFieldText(pedal2Label, 'Pedal 2')
-
-	for (var labelIndex = 0; labelIndex < footswitchPositions.length; ++labelIndex) {
-		var labelPos = footswitchPositions[labelIndex]
-		var labelWidth = surfaceConfig.footswitchLabelWidth
-		var labelHeight = surfaceConfig.footswitchLabelHeight
-		var labelX = labelPos.x - (labelWidth - surfaceConfig.footswitchHeight) / 2
-		var fsLabelY = labelPos.y + surfaceConfig.footswitchHeight + surfaceConfig.footswitchLabelYOffset
-		var fsLabel = surface.makeLabelField(labelX, fsLabelY, labelWidth, labelHeight)
-		page.setLabelFieldText(fsLabel, makeFootswitchLabel(localConfig, labelIndex))
-	}
+	createPedalLabels(surface, page, surfaceConfig)
+	createFootswitchOuterLabels(surface, page, surfaceConfig, footswitchPositions, localConfig)
 
 	return {
 		fsButtons: footswitchButtons,
@@ -401,10 +480,10 @@ function createSurface(surface, page, midiInput, localConfig) {
 }
 
 /**
- * @param {*} page
- * @param {*} ui
- * @param {*} localStateApi
- * @param {*} localConfig
+ * @param {MappingPage} page
+ * @param {SurfaceUi} ui
+ * @param {StateApi} localStateApi
+ * @param {DriverConfig} localConfig
  */
 function createBindings(page, ui, localStateApi, localConfig) {
 	var recordBinding = page.makeValueBinding(ui.recordButton.mSurfaceValue, page.mHostAccess.mTransport.mValue.mRecord)
@@ -502,6 +581,7 @@ function createBindings(page, ui, localStateApi, localConfig) {
 		var currValue = Number(arguments[1])
 		if (!activeDevice || isNaN(currValue)) return
 		if (currValue >= VALUE_STATE.pressThreshold) {
+			// FS3 intentionally reinforces stop by emitting a debounced stop pulse in addition to the stop binding.
 			localStateApi.emitStopPulse(activeDevice, ui.stopPulse, localConfig)
 			ui.recordStopGate.setProcessValue(activeDevice, VALUE_STATE.off)
 			ui.playButton.mSurfaceValue.setProcessValue(activeDevice, VALUE_STATE.off)
@@ -567,18 +647,18 @@ function createBindings(page, ui, localStateApi, localConfig) {
 }
 
 /**
- * @param {*} localConfig
- * @returns {*}
+ * @param {DriverConfig} localConfig
+ * @returns {DriverConfig}
  */
 function cloneConfig(localConfig) {
 	return JSON.parse(JSON.stringify(localConfig))
 }
 
 /**
- * @param {*} baseConfig
+ * @param {DriverConfig} baseConfig
  * @param {string} deviceName
  * @param {string} layoutPreset
- * @returns {*}
+ * @returns {DriverConfig}
  */
 function makeVariantConfig(baseConfig, deviceName, layoutPreset) {
 	var variantConfig = cloneConfig(baseConfig)
@@ -588,7 +668,7 @@ function makeVariantConfig(baseConfig, deviceName, layoutPreset) {
 }
 
 /**
- * @param {*} localConfig
+ * @param {DriverConfig} localConfig
  */
 function registerDevice(localConfig) {
 	var deviceDriver = midiremote_api.makeDeviceDriver(

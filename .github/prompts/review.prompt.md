@@ -28,6 +28,7 @@ This prompt must produce two outputs:
 ## 2. Documentation Currency
 
 - `README.md`: reflects current FS assignments (FS1–FS9), layout options, and installation steps?
+- `UnO2_Cubase_OBS_Setup.txt`: reflects current FS note assignments, role names, and press/release behavior?
 - `docs/ARCHITECTURE.md`: accurate against actual script structure?
 - `docs/DEVELOPMENT.md`: setup steps and test checklist still valid?
 - `CHANGELOG.md`: are all recent changes logged with correct version and date?

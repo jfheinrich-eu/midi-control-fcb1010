@@ -19,6 +19,6 @@ Created a new instruction file for AI-assisted development workflow and quality 
 To ensure consistent quality, trustworthy outputs, maintainable script design, and domain-correct MIDI Remote implementations.
 
 ## Validation Performed
-- Confirmed instruction file exists at `.github/copilot-instructions.md`.
+- Confirmed instruction file exists at `.github/copilot-instructions.md` in the repository.
 - Confirmed documentation entry exists inside docs as Markdown.
 - Confirmed all new file content is written in English.

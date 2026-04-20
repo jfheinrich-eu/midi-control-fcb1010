@@ -1,184 +1,124 @@
 ---
-description: "Interactive commit planner and executor for this repository. Use when: reviewing untracked files, grouping changes into conventional commits, proposing commit messages, checking breaking changes, and optionally creating commits after explicit user approval."
+description: "Interactive conventional commit workflow: stages selected untracked files, groups all changes into logical commits, previews the plan, and executes after user approval. Use when: committing changes, staging files, creating commits, conventional commits, git commit."
 agent: agent
 ---
 
-# Commit
+# Conventional Commit Workflow
 
-Perform an interactive, robust commit workflow for the current repository.
+Perform the following steps in order. Do not skip any step. Do not execute any `git commit` command until the user has explicitly approved the complete plan in Step 4.
 
-All chat messages, questions, summaries, commit proposals, and commit bodies must be written in English.
+---
 
-Primary goals:
-- Detect untracked files that are not ignored and let the user decide whether each should be added, removed, or added to `.gitignore`.
-- Analyze all changed files, whether staged or unstaged, and organize them into logical commit groups using conventional commit types.
-- Prepare one commit task per group with a conventional commit message, a short description header, and a brief body.
-- Determine whether each commit is breaking. If that cannot be inferred with high confidence, ask the user once for the affected group.
-- Show the proposed groups and commits to the user and let the user edit, accept, or cancel each commit.
-- Only create commits after explicit user approval for the specific group.
+## Step 1 — Discover Changed Files
 
-## Guardrails
+Run `git status --porcelain` and collect:
 
-- Be robust and conservative. Do not guess when repository state is unclear.
-- Never create a commit, stage files, delete files, or edit `.gitignore` without explicit user approval for that action.
-- Avoid loop dependencies in commit planning:
-  - If two candidate groups depend on each other in both directions, merge them into a single commit instead of forcing an order.
-  - If documentation is required to keep a code change understandable or complete, keep the docs with that code commit.
-  - If a pure refactor enables a later behavior change and can stand alone safely, place the refactor commit first.
-- Prefer fewer coherent commits over many fragile ones.
-- Never mix unrelated change types when a clean separation is possible.
-- If there are no non-ignored untracked files and no modified files, report that there is nothing to commit and stop.
-- If there are ignored untracked files only, do not ask about them.
-- If the repository already has staged files, include them in the analysis instead of assuming the index is authoritative.
+- **Modified/deleted tracked files**: lines starting with ` M`, `M `, `MM`, ` D`, `D `, `R `, `A `.
+- **Untracked files**: lines starting with `??`.
 
-## Required Workflow
+Display both lists clearly to the user.
 
-### 1. Inspect Repository State
+---
 
-Gather enough context to make a safe plan:
-- Identify non-ignored untracked files.
-- Identify modified, deleted, renamed, and staged files.
-- Review diffs or file content as needed to understand intent and dependencies.
-- Check whether `.gitignore` exists before proposing ignore changes.
+## Step 2 — Resolve Untracked Files
 
-### 2. Resolve Non-Ignored Untracked Files
+If there are **untracked files**:
 
-If non-ignored untracked files exist, present them in a compact table and ask the user what should happen to each file.
+- List every untracked file with a short one-line description of what it appears to be (infer from path and extension).
+- Ask the user: **"Which of these untracked files should be included in this commit? (list numbers, 'all', or 'none')"**
+- Wait for the user's answer.
+- Mark the selected untracked files as **to be staged**.
 
-Allowed actions per file:
-- Add
-- Remove
-- Add to `.gitignore`
-- Leave untouched for now
+If there are **no untracked files**, skip this step and continue.
 
-Rules:
-- Ask in one consolidated interaction when practical.
-- If the user chooses `Add to .gitignore`, propose the narrowest safe ignore pattern and ask for approval before editing `.gitignore`.
-- If the user chooses `Remove`, ask for confirmation before deleting the file.
-- After approved ignore or deletion actions, refresh repository state once before grouping commits.
-- Do not repeat the same question unless repository state changed.
+---
 
-### 3. Build Commit Groups
+## Step 3 — Build the Commit Plan
 
-Group all remaining changed files, staged or unstaged, into logical commits.
+Group all files (modified tracked + selected untracked) into **logical, self-contained commit groups**.
 
-Use conventional commit types where applicable:
-- `feat`
-- `fix`
-- `refactor`
-- `docs`
-- `test`
-- `build`
-- `ci`
-- `chore`
-- `perf`
-- `revert`
+### Grouping principles
 
-Grouping rules:
-- Group by intent, not by staging state.
-- Keep atomic changes together.
-- Keep required documentation with the behavior or interface change it documents when splitting would create dependency loops.
-- Separate unrelated docs-only cleanup into `docs` commits.
-- Prefer `refactor` over `chore` for code restructuring with no behavior change.
-- Prefer `fix` or `feat` when behavior changes are user-visible.
-- Include file lists and a one-sentence rationale for each group.
+Each group must represent a single coherent change. Never mix unrelated concerns in one commit. Apply these rules:
 
-### 4. Draft Commit Messages
+| Files | Conventional Commit type | Scope example |
+|---|---|---|
+| Main driver script (`*.js`) — bug fix | `fix` | `driver` |
+| Main driver script (`*.js`) — refactor, cleanup | `refactor` | `driver` |
+| Main driver script (`*.js`) — new feature | `feat` | `driver` |
+| `docs/*.md` | `docs` | _(omit scope or use topic)_ |
+| `README.md`, `CHANGELOG.md` | `docs` | _(omit scope)_ |
+| `.github/workflows/` | `ci` | workflow filename without extension |
+| `.github/prompts/`, `.github/instructions/` | `chore` | `prompts` |
+| `.github/copilot-instructions.md` | `chore` | `copilot` |
+| `.github/PULL_REQUEST_TEMPLATE.md`, `.github/ISSUE_TEMPLATE/` | `chore` | `github` |
+| `.github/labels.yml` | `chore` | `labels` |
+| Root config files (`.gitignore`, `.editorconfig`, `.gitattributes`) | `chore` | `config` |
+| `CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `SUPPORT.md` | `docs` | `governance` |
+| Mixed workflow infrastructure (multiple `.github/` files) | `chore` | `github` |
 
-For each proposed group, create:
-- A conventional commit header in the form `<type>(<optional-scope>): <short description>`
-- A brief body with one or two bullet points describing what changed and why
-- A breaking-change assessment
+### Conventional commit message rules
 
-Breaking-change rules:
-- Mark as breaking only if there is a real external behavior, API, interface, workflow, or configuration break.
-- If the change is breaking, append `!` to the type or scope and include a `BREAKING CHANGE:` paragraph in the body.
-- If breaking status is unclear, ask the user a targeted question for that group before finalizing the header.
-- Do not overuse breaking markers for internal refactors.
+- Format: `<type>(<scope>): <description>`
+- Scope is optional — omit if it adds no value.
+- `<description>`: imperative mood, lowercase, no trailing period, ≤72 characters total.
+- If a fix closes a known issue or resolves a review finding, add a body line: `Closes #<n>` or `Resolves review finding <ID>`.
+- If a change is breaking, append `!` after type/scope: `refactor(driver)!: rename smoothing to historyWeight`.
 
-### 5. User Review And Approval
+---
 
-Show the user all proposed commit groups in a clear review format.
+## Step 4 — Present the Plan and Ask for Approval
 
-For each group, include:
-- Group number
-- Proposed commit header
-- Breaking status
-- Files included
-- Rationale
-- Brief body
+Present the complete commit plan as a numbered table:
 
-Then let the user choose, for each group:
-- Accept
-- Edit
-- Cancel
+```
+Commit plan
+───────────────────────────────────────────────────────
+#1  fix(driver): remove competing stop-lamp callback
+    Files: Behringer_BehringerFCB1010UnO2.js
 
-Rules:
-- Support editing of header, body, grouping, and breaking status.
-- If the user edits grouping in a way that creates a dependency loop or invalid split, explain the problem and propose the smallest safe adjustment.
-- If a group is canceled, exclude it from commit execution and leave its files untouched.
-- Do not commit any accepted group until the user has explicitly approved execution.
+#2  ci: pin all workflow actions to SHA
+    Files: .github/workflows/pr-auto-label.yml
+           .github/workflows/pr-bot-review.yml
+           .github/workflows/pr-copilot-review.yml
+           .github/workflows/label-sync.yml
 
-### 6. Execute Approved Commits
-
-Only after the user explicitly requests execution:
-- Stage only the files belonging to the approved group.
-- Re-check the diff for that group before committing.
-- Create the commit with the finalized conventional commit message.
-- Continue group by group in dependency-safe order.
-- If a commit fails, stop, report the exact reason, and do not continue automatically.
-
-After each successful commit, report:
-- The created commit header
-- The files included
-- Whether more approved groups remain
-
-## Recommended Interaction Pattern
-
-Use this sequence unless repository state makes a different order safer:
-
-1. Summarize current git state.
-2. Resolve non-ignored untracked files.
-3. Present proposed commit groups.
-4. Collect user edits or approvals.
-5. Execute only the approved commits.
-
-## Output Format For Commit Proposals
-
-Use a compact, reviewable structure such as:
-
-```text
-Group 1
-Header: refactor(layout): extract label helpers
-Breaking: no
-Files:
-- path/to/file
-- path/to/other-file
-Why:
-- Separates UI label construction from surface setup without changing behavior.
-Body:
-- Extract pedal and footswitch label creation helpers.
-- Reduce createSurface responsibility and keep layout behavior unchanged.
-
-Group 2
-Header: docs(development): document commit workflow
-Breaking: no
-Files:
-- path/to/file
-Why:
-- Documents the new contributor workflow for repository-local slash commands.
-Body:
-- Add repository change note for the new /commit prompt.
+#3  docs: document review fixes
+    Files: docs/2026-03-25-review-fixes.md
+           CHANGELOG.md
+───────────────────────────────────────────────────────
 ```
 
-## Success Criteria
+Then ask:
+> **Shall I proceed with these commits?**
+> Reply `yes` to execute, `no` to abort, or describe any changes you want made to the plan.
 
-The workflow is complete only when one of these states is reached:
-- The repository has no actionable changes.
-- The user reviewed the proposed commits and canceled execution.
-- The approved commits were created successfully.
+Wait for the user's response before doing anything.
 
-At the end, provide a concise summary of:
-- Untracked-file decisions
-- Final commit groups
-- Commits created, skipped, or canceled
+- If the user says **yes**: proceed to Step 5.
+- If the user says **no**: stop and confirm aborted.
+- If the user requests changes: adjust the plan and present it again (repeat Step 4).
+
+---
+
+## Step 5 — Execute the Commits
+
+For **each commit group** in the approved plan, in order:
+
+1. Stage exactly the files in that group:
+   - For files already tracked and modified: `git add <file> [<file> ...]`
+   - For untracked files selected in Step 2: `git add <file> [<file> ...]`
+   - Stage **only the files in this group** — do not use `git add -A` or `git add .`.
+
+2. Commit with the exact approved message:
+   ```
+   git commit -m "<type>(<scope>): <description>"
+   ```
+   If a body is needed (breaking change, closes issue), use:
+   ```
+   git commit -m "<type>(<scope>): <description>" -m "<body>"
+   ```
+
+3. After each commit, confirm success by showing the one-line `git log --oneline -1` output.
+
+After all commits are done, run `git log --oneline -10` and show the result as a final summary.

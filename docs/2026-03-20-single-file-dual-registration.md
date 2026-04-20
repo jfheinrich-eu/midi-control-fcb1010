@@ -28,7 +28,8 @@ Switched to single-file dual device registration so both wide and compact varian
 - End users can choose layout variant in Cubase without opening any editor.
 
 ## Validation Performed
-- Verified both device variants are registered in code from one entry script.
+- Intended design: both device variants are defined by reusable helpers in one entry script.
+- Current runtime bootstrap registers one active variant selected via `LAYOUT`.
 - Verified layout preset assignment per variant is explicit and deterministic.
 - Verified transport/mapping logic remains shared and unchanged.
 - Verified JavaScript file has no reported errors after refactor.

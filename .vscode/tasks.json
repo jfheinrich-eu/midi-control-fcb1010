@@ -1,0 +1,62 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "Validate MIDI Remote script syntax",
+			"type": "process",
+			"command": "node",
+			"args": [
+				"--check",
+				"${workspaceFolder}/Behringer_BehringerFCB1010UnO2.js"
+			],
+			"problemMatcher": {
+				"owner": "javascript",
+				"fileLocation": "absolute",
+				"pattern": {
+					"regexp": "^(.+):(\\d+)$",
+					"file": 1,
+					"line": 2
+				}
+			},
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared",
+				"clear": true
+			}
+		},
+		{
+			"label": "Validate current JavaScript file syntax",
+			"type": "process",
+			"command": "node",
+			"args": [
+				"--check",
+				"${file}"
+			],
+			"problemMatcher": [],
+			"presentation": {
+				"reveal": "always",
+				"panel": "shared",
+				"clear": true
+			}
+		},
+		{
+			"label": "Package UnO2 Language Extension",
+			"type": "shell",
+			"command": "make",
+			"args": [
+				"package"
+			],
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Launch UnO2 Extension Development Host",
+			"type": "shell",
+			"command": "make",
+			"args": [
+				"extension-dev"
+			],
+			"problemMatcher": []
+		}
+	]
+}

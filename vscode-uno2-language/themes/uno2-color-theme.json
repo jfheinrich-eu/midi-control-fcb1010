@@ -1,0 +1,33 @@
+{
+	"name": "UnO2 Syntax Colors",
+	"type": "light",
+	"colors": {},
+	"tokenColors": [
+		{
+			"scope": [
+				"comment.block.uno2",
+				"comment.line.double-slash.uno2"
+			],
+			"settings": {
+				"foreground": "#6a737d",
+				"background": "#f3f4f6"
+			}
+		},
+		{
+			"scope": "entity.name.function.definition.uno2",
+			"settings": {
+				"foreground": "#005cc5"
+			}
+		},
+		{
+			"scope": [
+				"variable.other.uno2",
+				"variable.other.definition.uno2",
+				"variable.language.predefined.uno2"
+			],
+			"settings": {
+				"foreground": "#953800"
+			}
+		}
+	]
+}

@@ -7,6 +7,11 @@ The format is based on Keep a Changelog, and this project aims to follow Semanti
 ## [Unreleased]
 
 ### Changed
+
+- Added the local UnO2 VS Code language extension, VSIX packaging, filename association, syntax-color theme, and automated extension validation.
+- Added the `make check` pre-PR validation target with JSON validation and a portable Markdown-link checker.
+- Added the missing MIDI Remote surface-value JSDoc type and concrete driver configuration annotations.
+- Added repository Markdownlint configuration for the existing README presentation style and corrected review-report tracking.
 - Added repository-local slash command prompts for focused review and commit planning workflows.
 - Updated contributor guidance to include slash-command-based commit preparation.
 - Driver script refactored to replace behavior-relevant magic numbers with named constants and explicit index mappings.
@@ -17,6 +22,7 @@ The format is based on Keep a Changelog, and this project aims to follow Semanti
 ## [0.2.0] - 2026-03-25 (revised)
 
 ### Changed
+
 - README aligned with repository identity and GitHub best-practice navigation.
 - Fixed competing stop-lamp callbacks (C1): stop lamp is now driven exclusively by play-state inversion.
 - Replaced all `arguments[n]` callback patterns with named parameters (W2).
@@ -29,6 +35,7 @@ The format is based on Keep a Changelog, and this project aims to follow Semanti
 ## [0.1.0] - 2026-03-21
 
 ### Added
+
 - Initial public repository baseline for `jfheinrich-eu/midi-control-fcb1010`.
 - Repository governance files (`CONTRIBUTING.md`, `CODE_OF_CONDUCT.md`, `SECURITY.md`, `SUPPORT.md`).
 - GitHub collaboration templates (issue templates and pull request template).
@@ -36,4 +43,5 @@ The format is based on Keep a Changelog, and this project aims to follow Semanti
 - MIT `LICENSE`.
 
 ### Notes
+
 - Historical detailed engineering logs remain in `docs/` with date-based entries.

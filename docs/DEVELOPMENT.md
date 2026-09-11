@@ -5,6 +5,7 @@
 This project provides a Cubase MIDI Remote script for the Behringer FCB1010 (UnO2 setup).
 
 Primary behavior documentation artifacts:
+
 - `README.md`
 - `UnO2_Cubase_OBS_Setup.txt`
 
@@ -12,6 +13,12 @@ Primary behavior documentation artifacts:
 
 - Cubase with MIDI Remote support
 - Controller configured to send note events on MIDI channel 10
+- Node.js 18 or newer for validation scripts
+- GNU Make or a compatible Make implementation for the `make` targets
+
+The automated checks use Node.js and are intended for Linux, macOS, and Windows
+environments that provide Make. On systems without Make, run the documented
+Node.js commands directly.
 
 ## Local Workflow
 
@@ -19,6 +26,50 @@ Primary behavior documentation artifacts:
 2. Place/update the script in Cubase local MIDI Remote script path.
 3. In Cubase, run `MIDI Remote -> Scripting Tools -> Reload Scripts`.
 4. Validate transport behavior and lamps.
+
+## VS Code Extension Workflow
+
+The repository includes the local `UnO2 Language Support` extension under
+`vscode-uno2-language/`. The workspace recommends the local extension together
+with ESLint and Markdownlint. Use the `Run UnO2 Language Extension`
+configuration in `.vscode/launch.json`, or run:
+
+```bash
+make extension-dev
+```
+
+To package and install the extension permanently:
+
+```bash
+make install-extension
+```
+
+The available Make targets are:
+
+- `make package` builds the VSIX.
+- `make install-extension` builds and installs the VSIX in VS Code.
+- `make check` runs all automated pre-PR checks.
+- `make validate` checks the MIDI Remote script syntax.
+- `make validate-json` checks the shared JSON and extension JSON files.
+- `make validate-extension` checks the UnO2 extension manifest, grammar, theme, and setup fixture.
+- `make markdown-links` checks relative Markdown links, including untracked documentation files.
+- `make validate-current-js FILE=path/to/file.js` checks another JavaScript file.
+- `make extension-dev` starts an Extension Development Host with the local extension loaded.
+- `make clean` removes the generated VSIX.
+
+The extension contributes the `UnO2 Syntax Colors` theme. Select it through
+**Preferences: Color Theme** when using the VSIX in another workspace. The
+repository keeps its workspace token colors as well, so the checked-in setup
+file retains the same appearance without a theme switch.
+
+The local `UnO2_Bedienungsanleitung.pdf` is optional reference material and is
+ignored by Git. It is not part of the distributable project; syntax validation
+uses the maintained setup fixture and the documented UnO2 syntax target.
+
+Markdownlint uses `.markdownlint.json` to permit the repository's intentional
+HTML branding and compact legacy list formatting. The configuration keeps
+content checks enabled while suppressing presentation-only rules that would
+otherwise report the established README layout and long release-note lines.
 
 ## Manual Test Checklist
 
@@ -51,41 +102,12 @@ Primary behavior documentation artifacts:
 
 ## Documentation Link Sanity Check
 
-Run this lightweight local check before PR creation when markdown links were changed:
+Run this local check before PR creation when Markdown links were changed. It
+checks inline relative links and file existence, including untracked Markdown
+files; it does not validate reference-style links or heading anchors:
 
 ```bash
-repo_root="$(git rev-parse --show-toplevel)"
-cd "$repo_root"
-failed=0
-
-while IFS= read -r markdown_file; do
-  while IFS= read -r link_target; do
-    clean_target="${link_target%%#*}"
-    [ -z "$clean_target" ] && continue
-    echo "$clean_target" | grep -Eq '^(https?://|mailto:|[a-zA-Z]+:)' && continue
-
-    if [[ "$clean_target" = /* ]]; then
-      resolved_path="$repo_root$clean_target"
-    else
-      resolved_path="$(dirname "$markdown_file")/$clean_target"
-    fi
-
-    [ -e "$resolved_path" ] || {
-      echo "BROKEN $markdown_file -> $link_target"
-      failed=1
-    }
-  done < <(
-    grep -oE '\\[[^]]+\\]\\([^)]+\\)' "$markdown_file" \
-      | sed -E 's/^.*\\(([^)]+)\\)$/\\1/'
-  )
-done < <(git ls-files '*.md')
-
-if [ "$failed" -ne 0 ]; then
-  echo "Markdown link check failed."
-  exit 1
-fi
-
-echo "Markdown link check passed."
+node scripts/check-markdown-links.js
 ```
 
 ## Automation Consistency

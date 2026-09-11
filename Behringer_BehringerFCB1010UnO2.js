@@ -98,6 +98,12 @@ var SURFACE_TEXT_LAYOUT = {
  */
 
 /**
+ * Custom surface value variable used for momentary process-value pulses.
+ * @typedef {object} SurfaceCustomValueVariable
+ * @property {function(MidiRemoteActiveDevice, number): void} setProcessValue
+ */
+
+/**
  * Resolved surface layout config, derived from `config.surface` with the
  * active layout preset merged in. Plain key/value object.
  * @typedef {object} SurfaceConfig
@@ -131,7 +137,7 @@ var SURFACE_TEXT_LAYOUT = {
  * @property {function(MidiRemoteActiveDevice, string, boolean): void} setBooleanState
  * @property {function(MidiRemoteActiveDevice, string, number): number} getIntegerState
  * @property {function(MidiRemoteActiveDevice, string, number): void} setIntegerState
- * @property {function(MidiRemoteActiveDevice, object, DriverConfig): void} emitStopPulse
+ * @property {function(MidiRemoteActiveDevice, SurfaceCustomValueVariable, DriverConfig): void} emitStopPulse
  */
 
 /**
@@ -288,7 +294,7 @@ function setIntegerState(activeDevice, key, value) {
 /**
  * @param {MidiRemoteActiveDevice} activeDevice
  * @param {SurfaceCustomValueVariable} stopPulse
- * @param {object} localConfig
+ * @param {DriverConfig} localConfig
  */
 function emitStopPulse(activeDevice, stopPulse, localConfig) {
 	var nowMs = Date.now()
@@ -376,7 +382,7 @@ function normalizeRoleLabel(roleName, maxLength) {
 }
 
 /**
- * @param {object} localConfig
+ * @param {DriverConfig} localConfig
  * @param {number} roleIndex
  * @returns {string}
  */
@@ -415,7 +421,7 @@ function createPedalLabels(surface, page, surfaceConfig) {
  * @param {MappingPage} page
  * @param {SurfaceConfig} surfaceConfig
  * @param {Array<{x: number, y: number}>} footswitchPositions
- * @param {object} localConfig
+ * @param {DriverConfig} localConfig
  */
 function createFootswitchOuterLabels(surface, page, surfaceConfig, footswitchPositions, localConfig) {
 	for (var labelIndex = 0; labelIndex < footswitchPositions.length; ++labelIndex) {
@@ -433,7 +439,7 @@ function createFootswitchOuterLabels(surface, page, surfaceConfig, footswitchPos
  * @param {MidiRemoteSurface} surface
  * @param {MappingPage} page
  * @param {MidiRemotePort} midiInput
- * @param {object} localConfig
+ * @param {DriverConfig} localConfig
  * @returns {SurfaceElements}
  */
 function createSurface(surface, page, midiInput, localConfig) {
@@ -660,18 +666,18 @@ function createBindings(page, ui, localStateApi, localConfig) {
 }
 
 /**
- * @param {object} localConfig
- * @returns {object}
+ * @param {DriverConfig} localConfig
+ * @returns {DriverConfig}
  */
 function cloneConfig(localConfig) {
 	return JSON.parse(JSON.stringify(localConfig))
 }
 
 /**
- * @param {object} baseConfig
+ * @param {DriverConfig} baseConfig
  * @param {string} deviceName
  * @param {string} layoutPreset
- * @returns {object}
+ * @returns {DriverConfig}
  */
 function makeVariantConfig(baseConfig, deviceName, layoutPreset) {
 	var variantConfig = cloneConfig(baseConfig)
@@ -681,7 +687,7 @@ function makeVariantConfig(baseConfig, deviceName, layoutPreset) {
 }
 
 /**
- * @param {object} localConfig
+ * @param {DriverConfig} localConfig
  */
 function registerDevice(localConfig) {
 	var deviceDriver = midiremote_api.makeDeviceDriver(

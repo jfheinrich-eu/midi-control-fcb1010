@@ -30,7 +30,7 @@ jobs:
               pull_number: context.payload.pull_request.number,
             });
             const alreadyApproved = reviews.data.some(
-              r => r.user.login === 'jfheinrich-bot' && r.state === 'APPROVED'
+                review => review.user.login === 'jfheinrich-bot' && review.state === 'APPROVED'
             );
             if (alreadyApproved) {
               core.info('jfheinrich-bot has already approved this PR — skipping.');

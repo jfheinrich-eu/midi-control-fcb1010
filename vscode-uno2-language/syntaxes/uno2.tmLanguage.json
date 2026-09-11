@@ -1,0 +1,217 @@
+{
+	"name": "UnO2",
+	"scopeName": "source.uno2",
+	"patterns": [
+		{
+			"include": "#comments"
+		},
+		{
+			"include": "#strings"
+		},
+		{
+			"include": "#sections"
+		},
+		{
+			"include": "#declarations"
+		},
+		{
+			"include": "#commands"
+		},
+		{
+			"include": "#operators"
+		},
+		{
+			"include": "#variables"
+		},
+		{
+			"include": "#numbers"
+		},
+		{
+			"include": "#bank-layout"
+		}
+	],
+	"repository": {
+		"comments": {
+			"patterns": [
+				{
+					"name": "comment.block.uno2",
+					"begin": "/\\*",
+					"end": "\\*/"
+				},
+				{
+					"name": "comment.line.double-slash.uno2",
+					"match": "//.*$"
+				}
+			]
+		},
+		"strings": {
+			"patterns": [
+				{
+					"name": "string.quoted.double.uno2",
+					"begin": "\\\"",
+					"end": "\\\"",
+					"patterns": [
+						{
+							"name": "constant.character.escape.uno2",
+							"match": "\\\\."
+						}
+					]
+				}
+			]
+		},
+		"sections": {
+			"patterns": [
+				{
+					"name": "keyword.control.section.uno2",
+					"begin": "\\b(?:PRESETS|EFFECTS|TRIGGERS|SWEEPS|BANKS)\\b(?=\\s*=)",
+					"end": "(?=^\\s*\\})",
+					"patterns": [
+						{
+							"include": "#comments"
+						},
+						{
+							"include": "#section-definitions"
+						},
+						{
+							"include": "#bank-layout"
+						}
+					]
+				},
+				{
+					"name": "keyword.control.directive.uno2",
+					"match": "\\b(?:NO_UPDOWN_SWITCHES|USE_DIRECT_BANK|GLOBALSWITCH)\\b"
+				}
+			]
+		},
+		"section-definitions": {
+			"patterns": [
+				{
+					"name": "entity.name.function.definition.uno2",
+					"match": "^\\s*[A-Za-z_][A-Za-z0-9_]*(?=\\s*$)"
+				}
+			]
+		},
+		"declarations": {
+			"patterns": [
+				{
+					"name": "storage.type.channel.uno2",
+					"begin": "\\bCHANNEL\\b",
+					"end": "(?==|$)",
+					"patterns": [
+						{
+							"name": "entity.name.type.channel.uno2",
+							"match": "[A-Za-z_][A-Za-z0-9_]*"
+						}
+					]
+				},
+				{
+					"name": "storage.type.variable.uno2",
+					"begin": "\\bVAR\\b",
+					"end": "(?==|$)",
+					"patterns": [
+						{
+							"name": "variable.other.definition.uno2",
+							"match": "\\$[A-Za-z_][A-Za-z0-9_]*"
+						}
+					]
+				},
+				{
+					"name": "keyword.control.initialization.uno2",
+					"match": "\\b(?:INIT_FCB|INIT_BANK|REMOTE_CONTROL_CHANNEL)\\b"
+				},
+				{
+					"name": "keyword.control.content.uno2",
+					"match": "\\b(?:PRESET|PRESET_RELEASE|EFFECT_ON|EFFECT_OFF|TRIGGER_CLICK|TRIGGER_RELEASE|SWEEP)\\b"
+				}
+			]
+		},
+		"commands": {
+			"patterns": [
+				{
+					"name": "keyword.control.command.uno2",
+					"match": "\\b(?:SendMidi|SendSysEx|SendSysCommon|SendRealtime|Wait|GotoBank)\\b"
+				},
+				{
+					"name": "keyword.control.assignment.uno2",
+					"match": "\\b(?:Footswitch|Pedal|Tipswitch|Heelswitch)\\b"
+				},
+				{
+					"name": "keyword.operator.effect.uno2",
+					"match": "\\b(?:SwitchOn|SwitchOff|SendTrigger|SendPedal|Open|Close)\\b"
+				},
+				{
+					"name": "support.type.midi.uno2",
+					"match": "\\b(?:ProgChange|CtrlChange|NoteOn|NoteOff|PitchBend|ChannelPressure|MIDIStart|MIDIContinue|MIDIStop|SystemReset|SongSelect|SongPosition|TuneRequest)\\b"
+				},
+				{
+					"name": "constant.language.midi-channel.uno2",
+					"match": "\\b(?:MIDIChannel|MIDI_CHANNEL|REMOTE_CONTROL_CHANNEL)\\b"
+				},
+				{
+					"name": "constant.language.curve.uno2",
+					"match": "\\b(?:SlowRising|FastRising|Linear)\\b"
+				},
+				{
+					"name": "constant.language.boolean.uno2",
+					"match": "\\b(?:true|false|nothing)\\b"
+				},
+				{
+					"name": "keyword.control.conditional.uno2",
+					"match": "\\b(?:if|else|while|switch|case|default|break)\\b"
+				}
+			]
+		},
+		"operators": {
+			"patterns": [
+				{
+					"name": "keyword.operator.assignment.uno2",
+					"match": "(?:\\+=|-=|\\+\\+|--|==|!=|>=|<=|&&|\\|\\||=|>|<|!)"
+				},
+				{
+					"name": "punctuation.separator.pipe.uno2",
+					"match": "\\|"
+				},
+				{
+					"name": "punctuation.separator.colon.uno2",
+					"match": ":"
+				}
+			]
+		},
+		"variables": {
+			"patterns": [
+				{
+					"name": "variable.other.uno2",
+					"match": "\\$[A-Za-z_][A-Za-z0-9_]*"
+				},
+				{
+					"name": "variable.language.predefined.uno2",
+					"match": "#(?:CURRENT_BANK|CURRENT_PRESET)\\b"
+				}
+			]
+		},
+		"numbers": {
+			"patterns": [
+				{
+					"name": "constant.numeric.hex.uno2",
+					"match": "\\b0x[0-9A-Fa-f]+\\b"
+				},
+				{
+					"name": "constant.numeric.uno2",
+					"match": "\\b\\d+(?:-\\d+)?\\b"
+				}
+			]
+		},
+		"bank-layout": {
+			"patterns": [
+				{
+					"name": "entity.name.section.bank.uno2",
+					"match": "\\bbank(?:\\s+\\d+)?(?=\\s*:)"
+				},
+				{
+					"name": "punctuation.definition.bank.uno2",
+					"match": "[{}]"
+				}
+			]
+		}
+	}
+}

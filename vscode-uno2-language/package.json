@@ -1,0 +1,50 @@
+{
+	"name": "uno2-language-support",
+	"displayName": "UnO2 Language Support",
+	"description": "Syntax highlighting for UnO2 FCB1010 setup files.",
+	"version": "0.1.0",
+	"publisher": "jfheinrich-eu",
+	"engines": {
+		"vscode": ">=1.85.0"
+	},
+	"categories": [
+		"Programming Languages"
+	],
+	"contributes": {
+		"languages": [
+			{
+				"id": "uno2",
+				"aliases": [
+					"UnO2",
+					"uno2"
+				],
+				"extensions": [
+					".uno2"
+				],
+				"filenames": [
+					"UnO2_Cubase_OBS_Setup.txt"
+				],
+				"configuration": "./language-configuration.json"
+			}
+		],
+		"grammars": [
+			{
+				"language": "uno2",
+				"scopeName": "source.uno2",
+				"path": "./syntaxes/uno2.tmLanguage.json"
+			}
+		],
+		"themes": [
+			{
+				"label": "UnO2 Syntax Colors",
+				"uiTheme": "vs",
+				"path": "./themes/uno2-color-theme.json"
+			}
+		]
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/jfheinrich-eu/midi-control-fcb1010"
+	},
+	"license": "MIT"
+}

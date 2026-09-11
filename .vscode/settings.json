@@ -1,0 +1,77 @@
+{
+	"editor.insertSpaces": false,
+	"editor.detectIndentation": false,
+	"editor.tabSize": 4,
+	"editor.rulers": [
+		100,
+		120
+	],
+	"editor.trimAutoWhitespace": true,
+	"files.encoding": "utf8",
+	"files.eol": "\n",
+	"files.insertFinalNewline": true,
+	"files.trimTrailingWhitespace": true,
+	"files.associations": {
+		"UnO2_Cubase_OBS_Setup.txt": "uno2",
+		"*.uno2": "uno2"
+	},
+	"[javascript]": {
+		"editor.formatOnSave": false,
+		"editor.quickSuggestions": {
+			"strings": true
+		}
+	},
+	"[markdown]": {
+		"editor.insertSpaces": true,
+		"editor.tabSize": 2,
+		"files.trimTrailingWhitespace": false
+	},
+	"javascript.validate.enable": true,
+	"javascript.suggest.autoImports": false,
+	"javascript.suggest.completeFunctionCalls": true,
+	"javascript.preferences.quoteStyle": "single",
+	"javascript.preferences.importModuleSpecifier": "relative",
+	"editor.tokenColorCustomizations": {
+		"textMateRules": [
+			{
+				"scope": [
+					"comment.block.uno2",
+					"comment.line.double-slash.uno2"
+				],
+				"settings": {
+					"foreground": "#6a737d",
+					"background": "#f3f4f6"
+				}
+			},
+			{
+				"scope": "entity.name.function.definition.uno2",
+				"settings": {
+					"foreground": "#005cc5"
+				}
+			},
+			{
+				"scope": [
+					"variable.other.uno2",
+					"variable.other.definition.uno2",
+					"variable.language.predefined.uno2"
+				],
+				"settings": {
+					"foreground": "#953800"
+				}
+			}
+		]
+	},
+	"files.exclude": {
+		"**/.git": true,
+		"**/.DS_Store": true,
+		"**/Thumbs.db": true
+	},
+	"search.exclude": {
+		"**/.git": true,
+		"**/node_modules": true
+	},
+	"files.watcherExclude": {
+		"**/.git/objects/**": true,
+		"**/.git/subtree-cache/**": true
+	}
+}

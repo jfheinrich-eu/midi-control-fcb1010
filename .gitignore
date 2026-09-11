@@ -8,13 +8,20 @@ Thumbs.db
 *.swp
 *.swo
 
+# Keep shared VS Code project configuration versioned
+!.vscode/
+!.vscode/*.json
+
 # Logs and temp
 *.log
 *.tmp
 *.temp
 
-# Generated review reports
-????-??-??_??-??-??-review.md
+# Generated VS Code extension packages
+*.vsix
+
+# Optional local reference material
+UnO2_Bedienungsanleitung.pdf
 
 # Node (optional tooling)
 node_modules/

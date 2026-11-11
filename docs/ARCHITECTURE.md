@@ -24,6 +24,7 @@ The script is organized around three key layers:
 - FS3 stop behavior intentionally combines direct host stop binding with a debounced stop pulse for reinforced live-stop reliability
 - Tap tempo handler on FS5
 - Metronome toggle on FS9
+- Expression pedal A maps absolute CC 106 to the first MixConsole output channel's volume with scaled value takeover
 
 ## Layout System
 

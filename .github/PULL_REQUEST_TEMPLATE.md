@@ -18,6 +18,7 @@ Describe what changed and why.
 - [ ] Verified FS6 rewind and FS7 forward momentary behavior
 - [ ] Verified FS8 undo trigger and lamp feedback
 - [ ] Verified FS9 click toggle behavior
+- [ ] Verified Expression A controls the intended Stereo Out/master output volume without an abrupt takeover
 - [ ] Checked no regressions in lamp feedback
 - [ ] Verified mapping consistency across `FOOTSWITCH_NOTES_BY_ROW`, `README.md` MIDI table, and `UnO2_Cubase_OBS_Setup.txt`
 

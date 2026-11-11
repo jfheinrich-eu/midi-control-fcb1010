@@ -63,6 +63,7 @@ var SURFACE_TEXT_LAYOUT = {
 	tapLabelYOffset: 0.9,
 	tapLabelWidthReduction: 1.1,
 	tapLabelHeight: 0.7,
+	pedalControlInset: 1,
 	pedalLabelXOffset: 2.6,
 	pedalLabelYOffset: 0.15,
 	pedalLabelWidth: 5,
@@ -117,6 +118,7 @@ var SURFACE_TEXT_LAYOUT = {
  * @property {object}        recordButton         - FS1 button surface value.
  * @property {object}        playButton           - FS2 button surface value.
  * @property {object}        stopButton           - FS3 button surface value.
+ * @property {object}        masterVolumeFader    - Expression A fader element.
  * @property {object}        recordLamp           - FS1 lamp surface value.
  * @property {object}        playLamp             - FS2 lamp surface value.
  * @property {object}        stopLamp             - FS3 lamp surface value.
@@ -149,6 +151,11 @@ var SURFACE_TEXT_LAYOUT = {
  *   defaultBpm: number,
  *   historyWeight: number
  * }} tapTempo
+ * @property {{
+ *   channelZeroBased: number,
+ *   footswitchNotes: Array<number>,
+ *   expressionPedalAControlChange: number
+ * }} midi
  * @property {{
  *   wasRecordingKey: string,
  *   lastStopPulseMsKey: string,
@@ -213,6 +220,7 @@ var config = {
 	},
 	midi: {
 		channelZeroBased: MIDI_CHANNEL_DRUMS_ZERO_BASED,
+		expressionPedalAControlChange: 106,
 		// Keep note order stable: indices 0..4 map to bottom row, 5..9 map to top row.
 		footswitchNotes: FOOTSWITCH_NOTES_BY_ROW.bottom.concat(FOOTSWITCH_NOTES_BY_ROW.top)
 	},
@@ -412,7 +420,7 @@ function createPedalLabels(surface, page, surfaceConfig) {
 		SURFACE_TEXT_LAYOUT.pedalLabelWidth,
 		SURFACE_TEXT_LAYOUT.pedalLabelHeight
 	)
-	page.setLabelFieldText(pedal1Label, 'Pedal 1')
+	page.setLabelFieldText(pedal1Label, 'Master Vol')
 	page.setLabelFieldText(pedal2Label, 'Pedal 2')
 }
 
@@ -449,6 +457,18 @@ function createSurface(surface, page, midiInput, localConfig) {
 	surface.makeBlindPanel(0, 0, surfaceConfig.width, surfaceConfig.height)
 	surface.makeBlindPanel(surfaceConfig.leftPedalX, surfaceConfig.pedalY, surfaceConfig.pedalWidth, surfaceConfig.pedalHeight)
 	surface.makeBlindPanel(surfaceConfig.rightPedalX, surfaceConfig.pedalY, surfaceConfig.pedalWidth, surfaceConfig.pedalHeight)
+
+	var masterVolumeFader = surface.makeFader(
+		surfaceConfig.leftPedalX + SURFACE_TEXT_LAYOUT.pedalControlInset,
+		surfaceConfig.pedalY + SURFACE_TEXT_LAYOUT.pedalControlInset,
+		surfaceConfig.pedalWidth - (SURFACE_TEXT_LAYOUT.pedalControlInset * 2),
+		surfaceConfig.pedalHeight - (SURFACE_TEXT_LAYOUT.pedalControlInset * 2)
+	).setTypeHorizontal()
+
+	masterVolumeFader.mSurfaceValue.mMidiBinding
+		.setInputPort(midiInput)
+		.bindToControlChange(midiConfig.channelZeroBased, midiConfig.expressionPedalAControlChange)
+		.setTypeAbsolute()
 
 	var footswitchPositions = makeFootswitchPositions(surfaceConfig)
 	var footswitchButtons = []
@@ -490,6 +510,7 @@ function createSurface(surface, page, midiInput, localConfig) {
 	return {
 		fsButtons: footswitchButtons,
 		fsLamps: footswitchLamps,
+		masterVolumeFader: masterVolumeFader,
 		recordButton: footswitchButtons[FOOTSWITCH_INDEX.record],
 		playButton: footswitchButtons[FOOTSWITCH_INDEX.play],
 		stopButton: footswitchButtons[FOOTSWITCH_INDEX.stop],
@@ -516,6 +537,15 @@ function createSurface(surface, page, midiInput, localConfig) {
 function createBindings(page, ui, localStateApi, localConfig) {
 	var recordBinding = page.makeValueBinding(ui.recordButton.mSurfaceValue, page.mHostAccess.mTransport.mValue.mRecord)
 		.setTypeDefault()
+
+	var mainOutputChannel = page.mHostAccess.mMixConsole
+		.makeMixerBankZone('Stereo Out')
+		.includeOutputChannels()
+		.makeMixerBankChannel()
+
+	page.makeValueBinding(ui.masterVolumeFader.mSurfaceValue, mainOutputChannel.mValue.mVolume)
+		.setTypeDefault()
+		.setValueTakeOverModeScaled()
 
 	page.makeValueBinding(ui.playButton.mSurfaceValue, page.mHostAccess.mTransport.mValue.mStart)
 		.setTypeDefault()

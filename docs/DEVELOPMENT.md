@@ -82,6 +82,7 @@ otherwise report the established README layout and long release-note lines.
 - FS7: forward momentary behavior
 - FS8: undo trigger and lamp feedback
 - FS9: metronome click toggle
+- Expression pedal A: verify CC 106 controls the intended Stereo Out/master output volume without an abrupt takeover
 - UI row order matches hardware orientation
 - Mapping consistency check: `FOOTSWITCH_NOTES_BY_ROW` (driver), `README.md` MIDI table, and `UnO2_Cubase_OBS_Setup.txt` are aligned after every mapping change
 
@@ -94,6 +95,7 @@ otherwise report the established README layout and long release-note lines.
 
 ## Documentation Consistency Checklist
 
+- For the expression pedal, cross-check CC 106 and the master-output target across the driver, `README.md`, and `UnO2_Cubase_OBS_Setup.txt`.
 - For each mapping or behavior change, cross-check FS role/note assignments across:
   - `Behringer_BehringerFCB1010UnO2.js`
   - `README.md`

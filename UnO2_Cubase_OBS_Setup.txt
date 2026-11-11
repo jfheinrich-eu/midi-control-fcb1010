@@ -54,6 +54,7 @@ TRIGGERS =
  */
 SWEEPS =
 {
+   master_volume
 }
 
 
@@ -107,7 +108,7 @@ VAR $NOTE_FS10_USER_FUNCTION = 52
 /* Configure expression pedal A in UnO2 Control Center to send $EXP_A_CC
  * as an absolute Control Change on CUBASE_MIDI_CHANNEL, from 0 to 127.
  */
-
+SWEEP master_volume = SendMidi CUBASE_MIDI_CHANNEL CtrlChange $EXP_A_CC 0-127 SlowRising
 
 /* -------------------- STARTUP INIT -------------------- */
 INIT_FCB =
@@ -120,16 +121,20 @@ INIT_FCB =
 INIT_BANK bank 1 =
 {
    $current_bank = 1
+   Pedal 1 = master_volume
+   Pedal 2 = nothing
 }
 
 EFFECT_ON CUBASE_RECORD = {
    /* Footswitch press -> start Cubase recording */
    SendMidi CUBASE_MIDI_CHANNEL NoteOn $NOTE_FS1_RECORD $NOTE_ON_VELOCITY
+   SendMidi OBS_MIDI_CHANNEL NoteOn $NOTE_FS1_RECORD $NOTE_ON_VELOCITY
 }
 
 EFFECT_OFF CUBASE_RECORD = {
    /* Footswitch release -> stop Cubase recording in the MIDI Remote script */
    SendMidi CUBASE_MIDI_CHANNEL NoteOff $NOTE_FS1_RECORD $NOTE_OFF_VELOCITY
+   SendMidi OBS_MIDI_CHANNEL NoteOff $NOTE_FS1_RECORD $NOTE_OFF_VELOCITY
 }
 
 EFFECT_ON CUBASE_PLAY = {

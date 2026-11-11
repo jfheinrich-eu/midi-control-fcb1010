@@ -45,7 +45,8 @@ Implemented behavior:
 
 Implemented surface design:
 - The Cubase surface is visually arranged like a real FCB1010.
-- Two expression pedal areas are shown at the top.
+- Expression pedal A is mapped to the Stereo Out/master output volume.
+- Expression pedal B remains unassigned.
 - Two rows of five footswitches are shown at the bottom.
 - Footswitches 1 to 9 are now active and placed like the real pedalboard.
 
@@ -60,7 +61,7 @@ Possible next steps to evolve this script into a complete FCB1010 profile:
 1. Full functional FCB1010 mapping
 - Keep the current pedalboard-like visual layout
 - Turn all 10 footswitches into active Cubase controls
-- Turn both expression pedals into usable continuous controllers
+- Add a Cubase mapping for expression pedal B
 - Add readable labels that still stay musician-friendly
 
 2. Multi-page mapping setup
@@ -193,13 +194,13 @@ Notes:
 - The labels are intentionally simple and musician-friendly.
 
 ### Expression pedals
-The current script only draws both expression pedals in the Cubase surface for visual familiarity.
 
-At the moment:
-- Expression pedal A is not mapped to a Cubase function.
-- Expression pedal B is not mapped to a Cubase function.
+- Expression pedal A controls the volume of the first Cubase output channel, normally `Stereo Out` (the master output).
+- Configure expression pedal A in UnO2 Control Center to send absolute MIDI Control Change 106 (CC 106), values 0-127, on MIDI channel 10.
+- The Cubase binding uses scaled value takeover to reduce abrupt changes when the pedal position differs from the current host volume.
+- Expression pedal B is currently unassigned.
 
-You can leave both pedals unassigned for now, or prepare them later for volume, wah-style plugin control, QuickControls, or monitor/send levels.
+If the project has multiple output channels, make sure the intended master output is the first channel in the MixConsole output-channel bank. Verify the target channel in Cubase before using the pedal during a live session.
 
 ### Example workflow (your scenario)
 Guitar tube amp setup -> line out -> Cubase Elements 14 with this MIDI Remote script -> OBS (streaming/recording).

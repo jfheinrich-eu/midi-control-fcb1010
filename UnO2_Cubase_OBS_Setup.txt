@@ -12,6 +12,8 @@
  * - Footswitch 7 controls Forward by sending Note 47 on MIDI channel 10.
  * - Footswitch 8 controls Undo by sending Note 48 on MIDI channel 10.
  * - Footswitch 9 controls Click by sending Note 43 on MIDI channel 10.
+ * - Expression pedal A controls the first Cubase output channel volume with CC 106 on MIDI channel 10.
+ * - Expression pedal B is currently unassigned.
  * - Press sends Note On with value 127.
  * - Release sends Note Off with value 0.
  *
@@ -47,7 +49,9 @@ TRIGGERS =
 {
 }
 
-/* Expression mappings (names referenced in INIT_FCB) */
+/* Expression pedal A must send absolute CC 106, values 0-127, on CUBASE_MIDI_CHANNEL.
+ * Configure this assignment in UnO2 Control Center. Expression pedal B is unassigned.
+ */
 SWEEPS =
 {
 }
@@ -66,11 +70,8 @@ BANKS =
 CHANNEL CUBASE_MIDI_CHANNEL = 10
 CHANNEL OBS_MIDI_CHANNEL = 11
 
-/* Expression pedal CCs (change if you prefer other CCs) */
-/* Expression A CC number (Volume) */
-// VAR $EXP_A_CC = 106
-/* Expression B CC number (Filter/FX) */
-// VAR $EXP_B_CC = 107      
+/* Expression pedal A CC number (Cubase master output volume) */
+VAR $EXP_A_CC = 106
 
 VAR $current_bank = 0
 
@@ -103,10 +104,9 @@ VAR $NOTE_FS10_USER_FUNCTION = 52
 
 
 /* -------------------- EXPRESSION SWEEPS -------------------- */
-/* Expression A -> Volume */
-// SWEEP volume = SendMidi MIDI_CHANNEL CtrlChange $EXP_A_CC 0-127 SlowRising
-/* Expression B -> Filter/FX */
-// SWEEP filter_fx = SendMidi MIDI_CHANNEL CtrlChange $EXP_B_CC 0-127 SlowRising
+/* Configure expression pedal A in UnO2 Control Center to send $EXP_A_CC
+ * as an absolute Control Change on CUBASE_MIDI_CHANNEL, from 0 to 127.
+ */
 
 
 /* -------------------- STARTUP INIT -------------------- */

@@ -37,6 +37,7 @@ Thanks for contributing to `jfheinrich-eu/midi-control-fcb1010`.
 
 - Use focused PRs.
 - Include a short "what/why/how tested" summary.
+- For expression pedal changes, document and test the CC number and intended Cubase output channel.
 - Update relevant docs in `docs/` for every behavior or architecture change.
 - Keep naming and style consistent with existing files.
 

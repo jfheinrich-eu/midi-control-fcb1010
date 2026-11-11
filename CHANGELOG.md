@@ -6,6 +6,10 @@ The format is based on Keep a Changelog, and this project aims to follow Semanti
 
 ## [Unreleased]
 
+### Added
+
+- Mapped FCB1010 expression pedal A (CC 106) to the first Cubase output channel volume with scaled value takeover.
+
 ### Changed
 
 - Added the local UnO2 VS Code language extension, VSIX packaging, filename association, syntax-color theme, and automated extension validation.

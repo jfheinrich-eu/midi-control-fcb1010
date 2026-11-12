@@ -1,0 +1,65 @@
+name: Publish MIDI Remote Script
+
+on:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+
+jobs:
+  package:
+    name: Validate and package script
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out release source
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+        with:
+          ref: ${{ github.event.release.tag_name }}
+
+      - name: Run project checks
+        run: make check
+
+      - name: Build MIDI Remote package
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          from zipfile import ZIP_DEFLATED, ZipFile
+
+          package_path = Path(os.environ["RUNNER_TEMP"]) / "midi-control-fcb1010.zip"
+          script_path = Path("Behringer_BehringerFCB1010UnO2.js")
+          archive_path = "Behringer/BehringerFCB1010UnO2/Behringer_BehringerFCB1010UnO2.js"
+
+          with ZipFile(package_path, "w", compression=ZIP_DEFLATED) as package:
+              package.write(script_path, archive_path)
+
+          print("Created " + str(package_path))
+          PY
+
+      - name: Upload package artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: midi-remote-script
+          path: ${{ runner.temp }}/midi-control-fcb1010.zip
+          if-no-files-found: error
+          retention-days: 1
+
+  publish:
+    name: Attach package to release
+    needs: package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Download package artifact
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4.3.0
+        with:
+          name: midi-remote-script
+          path: midi-remote-artifact
+
+      - name: Upload package to GitHub release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ github.event.release.tag_name }}
+        run: gh release upload "$RELEASE_TAG" midi-remote-artifact/midi-control-fcb1010.zip --clobber

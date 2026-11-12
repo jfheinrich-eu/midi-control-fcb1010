@@ -11,8 +11,11 @@
   - Added a GitHub Release-published workflow that runs the project checks and attaches a ZIP containing the MIDI Remote driver to each release.
   - Packaged the script using Steinberg's vendor/device hierarchy under `Driver Scripts/Local/Behringer/BehringerFCB1010UnO2/`.
   - Documented manual installation into Cubase's Local scripts folder; the workflow distributes the script but does not install it on user systems.
+  - Fixed release uploads to specify the repository explicitly, avoiding a GitHub CLI git-context requirement in the artifact-only publish job.
+  - Added a manual `workflow_dispatch` tag input so a failed existing release, such as `v1.0.0`, can be repackaged and uploaded without publishing a new release.
 - Validation performed:
   - `make check` — passed.
   - Built the ZIP with Python's standard library and verified the archive contains exactly the driver at the expected vendor/device path and with unchanged contents.
   - `git diff --check` — passed.
-  - `actionlint` and a GitHub-hosted release run were unavailable in this environment; the workflow was reviewed but not executed end to end.
+  - Confirmed `gh release upload` supports the explicit `--repo` option.
+  - The GitHub-hosted workflow has not yet been rerun; Cubase and hardware tests are not applicable to release packaging.

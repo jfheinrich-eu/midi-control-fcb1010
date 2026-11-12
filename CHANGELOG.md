@@ -9,6 +9,7 @@ The format is based on Keep a Changelog, and this project aims to follow Semanti
 ### Added
 
 - Mapped FCB1010 expression pedal A (CC 106) to the first Cubase output channel volume with scaled value takeover.
+- Added a release workflow that validates and publishes the Cubase MIDI Remote driver as a downloadable ZIP using Steinberg's vendor/device folder structure.
 
 ### Changed
 

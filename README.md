@@ -88,14 +88,23 @@ Possible next steps to evolve this script into a complete FCB1010 profile:
 
 ## Usage
 ### Basic setup
-1. Place the script in the Cubase MIDI Remote local scripts folder.
-2. Reload scripts in Cubase (MIDI Remote -> Scripting Tools -> Reload Scripts).
-3. Add the device in MIDI Remote Manager.
-4. Optional: set `LAYOUT` at the top of `Behringer_BehringerFCB1010UnO2.js` (`wide` or `compact`) before reloading scripts.
-5. Ensure your FCB1010 sends the configured notes on MIDI channel 10:
-	- Footswitch 1 -> Note 36
-	- Footswitch 2 -> Note 38
-	- Footswitch 3 -> Note 40
+1. Download `midi-control-fcb1010.zip` from the [latest GitHub release](https://github.com/jfheinrich-eu/midi-control-fcb1010/releases/latest).
+2. Extract its `Behringer` folder into Cubase's MIDI Remote `Driver Scripts/Local` folder:
+   - Windows: `%USERPROFILE%\Documents\Steinberg\<Cubase>\MIDI Remote\Driver Scripts\Local`
+   - macOS: `~/Documents/Steinberg/<Cubase>/MIDI Remote/Driver Scripts/Local`
+   - The resulting script path must be `Local/Behringer/BehringerFCB1010UnO2/Behringer_BehringerFCB1010UnO2.js`.
+   - These folders follow the [official Steinberg MIDI Remote user-script structure](https://github.com/steinbergmedia/midiremote-userscripts#getting-started).
+3. Reload scripts in Cubase (MIDI Remote -> Scripting Tools -> Reload Scripts).
+4. Add the device in MIDI Remote Manager.
+5. Optional: set `LAYOUT` at the top of `Behringer_BehringerFCB1010UnO2.js` (`wide` or `compact`) before reloading scripts.
+6. Ensure your FCB1010 sends the configured notes on MIDI channel 10:
+   - Footswitch 1 -> Note 36
+   - Footswitch 2 -> Note 38
+   - Footswitch 3 -> Note 40
+
+The release ZIP contains only the MIDI Remote driver script. It does not install
+the script automatically; Cubase loads it from the user `Local` driver-scripts
+folder.
 
 ### Layout selection
 The script currently uses a single device registration and layout selection is controlled in code:

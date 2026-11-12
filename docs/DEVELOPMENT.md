@@ -34,6 +34,11 @@ The workflow checks out the release tag, runs `make check`, and attaches
 `midi-control-fcb1010.zip` to that release. The archive contains the driver's
 Steinberg-compatible `Behringer/BehringerFCB1010UnO2/` folder hierarchy.
 
+To retry packaging for an existing published release, open **Actions**,
+select **Publish MIDI Remote Script**, choose **Run workflow**, and enter its
+tag (for example `v1.0.0`). This uses the selected tag for validation and
+packaging, then uploads or replaces the ZIP on that release.
+
 Users manually extract the included `Behringer` folder into their Cubase
 `MIDI Remote/Driver Scripts/Local` folder, then reload scripts and add the
 device in MIDI Remote Manager. The workflow does not install scripts on user

@@ -27,6 +27,18 @@ Node.js commands directly.
 3. In Cubase, run `MIDI Remote -> Scripting Tools -> Reload Scripts`.
 4. Validate transport behavior and lamps.
 
+## MIDI Remote Release Package
+
+Publishing a GitHub Release runs `.github/workflows/publish-midi-remote-script.yml`.
+The workflow checks out the release tag, runs `make check`, and attaches
+`midi-control-fcb1010.zip` to that release. The archive contains the driver's
+Steinberg-compatible `Behringer/BehringerFCB1010UnO2/` folder hierarchy.
+
+Users manually extract the included `Behringer` folder into their Cubase
+`MIDI Remote/Driver Scripts/Local` folder, then reload scripts and add the
+device in MIDI Remote Manager. The workflow does not install scripts on user
+machines. See [the README installation steps](../README.md#basic-setup).
+
 ## VS Code Extension Workflow
 
 The repository includes the local `UnO2 Language Support` extension under
